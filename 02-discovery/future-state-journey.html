@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lena's future-state journey: Riverty's first consumer card</title>
+<style>
+  :root {
+    --page: #F5F6F8;
+    --surface: #FFFFFF;
+    --ink: #1B2430;
+    --ink-soft: #55606E;
+    --line: #D5D9E0;
+    --pain: #A4402F;
+    --pain-bg: #FBEFEC;
+    --gain: #0B6B58;
+    --gain-bg: #E6F3EF;
+    --node: #1B2430;
+    --node-ink: #FFFFFF;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12171E;
+      --surface: #1B222B;
+      --ink: #EEF1F5;
+      --ink-soft: #A5AFBD;
+      --line: #36404D;
+      --pain: #F0A596;
+      --pain-bg: #3A2420;
+      --gain: #8FDCC6;
+      --gain-bg: #17342D;
+      --node: #EEF1F5;
+      --node-ink: #12171E;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  main { max-width: 1120px; margin: 0 auto; padding: 40px 24px 48px; }
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    max-width: 22ch;
+  }
+  h2 { font-size: 17px; font-weight: 600; margin: 0 0 12px; }
+  p { margin: 0; }
+  .lede { max-width: 62ch; color: var(--ink-soft); font-size: 16px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .persona {
+    margin: 28px 0 40px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    display: grid;
+    gap: 6px 32px;
+    grid-template-columns: 1fr;
+  }
+  .persona p { max-width: 80ch; }
+  .persona b { font-weight: 600; }
+  @media (min-width: 900px) { .persona { grid-template-columns: 1fr 1fr; } .persona .wide { grid-column: 1 / -1; } }
+
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+  @media (min-width: 640px) { .timeline { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 960px) {
+    .timeline { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 12.5%;
+      right: 12.5%;
+      top: 17px;
+      height: 2px;
+      background: var(--line);
+    }
+  }
+  .stage { position: relative; display: flex; flex-direction: column; }
+  .node {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--node);
+    color: var(--node-ink);
+    display: grid; place-items: center;
+    font-weight: 600;
+    position: relative; z-index: 1;
+    border: 4px solid var(--page);
+    box-sizing: content-box;
+    margin: -4px 0 8px -4px;
+  }
+  @media (min-width: 960px) { .node { margin: -4px auto 8px; } .stage h3 { text-align: center; } }
+  .stage h3 { font-size: 17px; margin: 0 0 10px; font-weight: 600; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 14px 12px;
+    display: flex; flex-direction: column; gap: 12px;
+    flex: 1;
+  }
+  .field { display: grid; gap: 2px; }
+  .field dt { color: var(--ink-soft); font-size: 13px; }
+  .field dd { margin: 0; }
+  dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .pain, .gain { border-radius: 8px; padding: 8px 10px; }
+  .pain { background: var(--pain-bg); }
+  .pain dt { color: var(--pain); }
+  .gain { background: var(--gain-bg); margin-top: auto; }
+  .gain dt { color: var(--gain); }
+  .gain dd { font-weight: 600; }
+  .ev { color: var(--ink-soft); font-size: 13px; }
+
+  .adv { margin-top: 44px; }
+  .adv ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; grid-template-columns: 1fr; counter-reset: a; }
+  @media (min-width: 760px) { .adv ol { grid-template-columns: repeat(3, 1fr); } }
+  .adv li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    counter-increment: a;
+  }
+  .adv li::before { content: counter(a) ". "; font-weight: 600; }
+  .adv li b { font-weight: 600; }
+  .adv li span { display: block; margin-top: 6px; }
+  .adv .ev { display: block; margin-top: 6px; }
+
+  .limits {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    max-width: 90ch;
+  }
+  .limits ul { margin: 8px 0 0; padding-left: 18px; }
+  .limits li { margin: 3px 0; }
+
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    body { background: #fff; font-size: 11px; }
+    main { padding: 0; max-width: none; }
+    .persona { margin: 12px 0 16px; padding: 8px 12px; }
+    .timeline { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .timeline::before { display: block; left: 12.5%; right: 12.5%; }
+    .card { padding: 8px; gap: 6px; }
+    dl { gap: 6px; }
+    .adv { margin-top: 16px; }
+    .adv ol { grid-template-columns: repeat(3, 1fr); }
+    .limits { margin-top: 12px; font-size: 10px; }
+    h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lena's future-state journey with Riverty's first card</h1>
+  <p class="lede"><strong>Strategy:</strong> One card, one balance, one due date, and a clear answer whenever a payment fails. Friends-and-family MVP scope for Germany.</p>
+
+  <section class="persona" aria-label="Persona">
+    <p><b>Persona:</b> Lena, 32, Cologne. Salaried, middling income, no real cushion. Shops almost entirely on her phone and uses whichever BNPL option appears at checkout.</p>
+    <p><b>Goal:</b> Money leaves her account only after she has decided to keep an item, and she knows at a glance what she owes and when.</p>
+    <p class="wide"><b>Friction today:</b> Her card balance and regular pay later orders sit on two screens, and two reminders for different amounts arrive in one week. A card feels like one more thing to check before payday.</p>
+  </section>
+
+  <ol class="timeline" aria-label="Four-stage future-state journey">
+    <li class="stage">
+      <span class="node" aria-hidden="true">1</span>
+      <h3>Set up</h3>
+      <div class="card">
+        <dl>
+          <div class="field"><dt>User action</dt><dd>Adds the card to her phone wallet from the approval screen.</dd></div>
+          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Confident</dd></div>
+          <div class="field pain"><dt>Pain point addressed</dt><dd>1 in 3 activated cards never reached the wallet. <span class="ev">T-102</span></dd></div>
+          <div class="field gain"><dt>Action → Benefit</dt><dd>Adds card at approval → ready for shops from day one. <span class="ev">B2</span></dd></div>
+        </dl>
+      </div>
+    </li>
+    <li class="stage">
+      <span class="node" aria-hidden="true">2</span>
+      <h3>Pay in shop</h3>
+      <div class="card">
+        <dl>
+          <div class="field"><dt>User action</dt><dd>Taps the card in a shop and, if declined, reads the reason.</dd></div>
+          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Reassured</dd></div>
+          <div class="field pain"><dt>Pain point addressed</dt><dd>A silent bakery decline sent her back to her debit card. <span class="ev">N-06, T-101</span></dd></div>
+          <div class="field gain"><dt>Action → Benefit</dt><dd>Taps card, sees why if declined → retries without switching cards. <span class="ev">B1</span></dd></div>
+        </dl>
+      </div>
+    </li>
+    <li class="stage">
+      <span class="node" aria-hidden="true">3</span>
+      <h3>Check balance</h3>
+      <div class="card">
+        <dl>
+          <div class="field"><dt>User action</dt><dd>Opens one screen showing card spending and pay later orders together.</dd></div>
+          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Clear</dd></div>
+          <div class="field pain"><dt>Pain point addressed</dt><dd>Two screens left her asking which total is real. <span class="ev">N-07, T-103</span></dd></div>
+          <div class="field gain"><dt>Action → Benefit</dt><dd>Opens one screen → sees one total, no mental math before payday. <span class="ev">B3</span></dd></div>
+        </dl>
+      </div>
+    </li>
+    <li class="stage">
+      <span class="node" aria-hidden="true">4</span>
+      <h3>Plan payday</h3>
+      <div class="card">
+        <dl>
+          <div class="field"><dt>User action</dt><dd>Receives one reminder with one due date and one amount.</dd></div>
+          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Prepared</dd></div>
+          <div class="field pain"><dt>Pain point addressed</dt><dd>Two reminders for different amounts arrived in one week. <span class="ev">T-104</span></dd></div>
+          <div class="field gain"><dt>Action → Benefit</dt><dd>Gets one reminder → knows what is due and when. <span class="ev">B8</span></dd></div>
+        </dl>
+      </div>
+    </li>
+  </ol>
+
+  <section class="adv" aria-labelledby="adv-h">
+    <h2 id="adv-h">Three advantages over the manual workaround</h2>
+    <ol>
+      <li><b>One source of truth</b>
+        <span>Checks one screen → no more adding up totals across apps and screens.</span>
+        <span class="ev">N-02, T-103</span></li>
+      <li><b>Explained failures</b>
+        <span>Reads why a payment failed → stays on the card instead of reverting to debit.</span>
+        <span class="ev">N-06, T-101</span></li>
+      <li><b>Same tap as her bank card</b>
+        <span>Pays from the phone wallet → no extra habit to remember in shops.</span>
+        <span class="ev">N-03, B2</span></li>
+    </ol>
+  </section>
+
+  <section class="limits" aria-label="Limits of the evidence">
+    <p>Limits to state when presenting this map:</p>
+    <ul>
+      <li>The data pack is fictional practice data, and the persona combines quotes from different participants.</li>
+      <li>Feelings are hypotheses, and the manual workaround is inferred: the research does not document spreadsheets, screenshots or calendar reminders.</li>
+      <li>The advantages are design intentions from backlog items B1, B2, B3 and B8. No test has shown they change behaviour.</li>
+      <li>Not covered: late purchase notifications (T-108), repeated ID photo request (T-106) and the in-store pay now or later choice (B4), which is unproven and needs its own approval.</li>
+      <li>The test group is mostly colleagues, so real customers may behave differently.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
