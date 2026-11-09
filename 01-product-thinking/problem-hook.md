@@ -1,53 +1,20 @@
-# Problem Hook & Value Proposition: [StreamLine / RouteLogic / your initiative]
+# Problem Hook & Value Proposition (Module 1)
 
-> **Module 1 · ★ Deliverable 1.** Repo file `01-product-thinking/problem-hook.md` — part of your submission.
-> Do the lab in the **Module 1 · Exercise 2 Guide** (linked from the Module 1 deck), then click **⬇ Download .md** — it saves as this exact file. Commit it here.
-> It becomes the **Problem, Value & Hypothesis** slide of your Module 6 final deck. (Your Module 1 · Exercise 1 discovery map lands in `strategic-map.md`.)
+## Responses
+- **Chosen path, which Riverty business-unit case are you using?:** BU Pay & Credit: Riverty's First Consumer Card
+- **Strategic crisis, based on the brief, if the company does nothing for 12 months, what happens to its market position?:** If Riverty does nothing for 12 months, it stays a checkout button that only works where merchants already offer it. Klarna and PayPal, already on Lena’s phone, keep the everyday relationship, and Riverty remains one option she picks only when it happens to appear. Nothing breaks in 12 months. The cost is slow erosion: no direct relationship, no interchange or interest revenue, and little reason for merchants to see Riverty as more than one checkout option among several.
+- **Moment of misery, what is the user likely doing outside the product (Google, spreadsheets, a competitor) because your tool isn’t serving them?:** The user is currently forced to check several apps before payday to work out what she owes and when. Lena has Klarna and PayPal installed, and a card adds “one more thing to check before payday”. In the test launch, the card balance and her regular pay later orders sat on two different screens, and two reminders for different amounts arrived in the same week. In shops she gets no pay-later control at all: she taps her bank card without thinking, and after one unexplained decline she went back to her debit card for good.
+- **Problem hook, summarize the business risk and user pain into one urgent sentence.:** We must solve the risk that Riverty’s first card becomes one more thing heavy BNPL users have to check before payday, and drops out of their habit, by addressing the pain of working out what she owes and when across separate screens, mismatched reminders and an unexplained decline.
+- **Value proposition, based on the initiative in your assigned Riverty case, what is the new value and why is it urgent to launch now?:** The first Riverty card gives Lena one clear view of what she owes and when, and tells her why a payment failed, and it needs to launch while approval lead times and a fragile first impression are still within the team’s control.
 
-## 1. Chosen scenario
+## Cold-read your own hook
+- **Is the business risk high enough to justify a new initiative, a high-stakes threat, or a minor inconvenience?:** It is more than a minor inconvenience, because the card would give Riverty a direct everyday relationship and revenue lines that inaction forgoes. But the pack shows no competitor data and no revenue figures, and nothing breaks in 12 months. The stakes are moderate, and they rise if the card launches badly, since a poor first impression is harder to undo than a late launch. Only 21.1% of invited people reached three or more purchases in their activation month, so the test also hasn’t proved demand yet. That supports a small, fixed MVP and a launch recommendation, not a big-bang bet.
+- **Is the moment of misery a systemic problem or just an edge case?:** Systemic: The two-screen and two-due-date design (T-103, T-104) affects everyone who holds both card and pay later orders, and no decline shows a reason (T-101, 48 in-store declines). These are product design gaps, not edge cases.
+Weakly evidenced harm: N-07 is one interview and T-103 and T-104 are tickets without counts, so I can’t say how many people were affected. The switch back to a debit card is one anecdote (N-06), and the in-store decline rate (8.7% on about 206 attempts) has fallen from 12.1% in Month 1.
+Cause unknown: The Month 1 cohort dropped from 77.6% active in month 0 to 55.1% by month 3, but the pack doesn’t say whether tracking or declines caused it.
+- **Does the value proposition actually remove the obstacle you identified, or is it a generic feature?:** Not generic: B1 (decline reason), B3 (one balance) and B8 (one due date) each remove a named cause from the tickets and notes, and B4 matches the pay-after-keeping habit.
+Gap one: One balance view only helps if Lena chooses to track her money in Riverty. N-02’s objection is the number of apps she checks, and a better screen doesn’t answer why she should add this one.
+Gap two: The differentiator, pay-later control in store (B4), is the least evidenced part. N-01 and N-04 support the wish, but no test has shown it works.
+Gap three: Merchants still have no answer to N-08, which asks why a customer would pick Riverty at their checkout.
 
-**Path:** _StreamLine Spotlight (B2C) · RouteLogic Velocity (B2B) · my own initiative_
-
-_One line on why you picked it._
-
-## 2. The strategic crisis
-
-_The big-picture business risk. If the company does nothing for 12 months, what happens to its market position?_
-
-> If we do nothing for 12 months, the company will…
-
-## 3. The moment of misery
-
-_The specific point where the product fails the user, forcing a manual workaround (Google, spreadsheets, group texts, a competitor)._
-
-> The user is currently forced to…
-
-## 4. Problem hook
-
-_One urgent sentence fusing the business risk and the user pain, your pitch for why this is the most important thing to work on right now._
-
-> We must solve [business risk] by addressing [user pain]…
-
-## 5. Value proposition
-
-_Who it's for, the new value, and why it's urgent to launch now._
-
-> For **[who]**, we will **[value]** because **[urgent why]**.
-
-## 6. Cold-read self-review
-
-_Read your hook back as a skeptical stakeholder. If you don't feel the urgency, that's your data._
-
-| Question | Your answer |
-|---|---|
-| Is the business risk high-stakes enough to justify a new initiative? | _____ |
-| Is the moment of misery systemic, or just an edge case? | _____ |
-| Does the value proposition actually remove the obstacle? | _____ |
-
-## 7. Finalized hypothesis _(complete in Module 3)_
-
-> Based on [qual + quant evidence], I believe that [solving X] for [persona] will result in [outcome], as measured by a [X%] change in [success metric]. I will protect [guardrail metric] and make a go/no-go decision after [decision window].
-
-## Link to full artifact
-
-_[link to your Problem Hook Builder export]_
+So the fixes remove real frustration, but they may only make the card tolerable, not preferred. Test it by showing 8–10 test participants a prototype with one balance and one due date, and asking what they owe and when. Then give B1–B3 to the next cohort and compare month-2 activity against the earlier cohorts (51–57%). If it doesn’t move, reliability wasn’t the whole problem, and the card still needs a stronger reason to exist.
