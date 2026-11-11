@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BU Pay &amp; Credit roadmap: Riverty's first consumer card</title>
+<style>
+  /* Riverty Classic tokens: embedded fallback values from the
+     rty-classic-design-guidelines skill (audited 2026-09-22). */
+  :root {
+    --r-text-strong: #000000;
+    --r-text-regular: #282828;
+    --r-text-soft: #686868;
+    --r-text-inverse: #FFFFFF;
+    --r-text-brand: #527A42;
+    --r-background-softest: #FFFFFF;
+    --r-background-softer: #F3F1F0;
+    --r-background-soft: #E7E4E2;
+    --r-background-inverse: #282828;
+    --r-background-brand: #527A42;
+    --r-background-brand-softest: #E5EBE3;
+    --r-border-softest: #E7E4E2;
+    --r-border-softer: #C9C9C9;
+    --r-border-soft: #686868;
+    --r-border-regular: #282828;
+    --r-border-brand: #527A42;
+    --r-border-focused: #0071E3;
+    --r-ember: #EF706B;
+    --r-status-error-soft: #FEF6F6;
+    --font-heading: "GT Ultra Median", Georgia, "Times New Roman", serif;
+    --font-body: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--r-background-soft); color: var(--r-text-regular);
+    font-family: var(--font-body); font-size: 14px; line-height: 21px;
+  }
+  main { max-width: 1200px; margin: 0 auto; padding: 56px 24px 64px; }
+  h1, h2, h3 { font-family: var(--font-heading); font-weight: 300; margin: 0; }
+  p { margin: 0; }
+  button, select, summary { font: inherit; color: inherit; border-radius: 0; }
+  :focus-visible { outline: 2px solid var(--r-border-focused); outline-offset: 2px; }
+
+  /* Header */
+  .top { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 860px) { .top { grid-template-columns: 1fr auto; gap: 56px; } }
+  h1 { color: var(--r-text-brand); font-size: clamp(34px, 6vw, 52px); line-height: 1.15; letter-spacing: -1px; }
+  .intro { margin-top: 24px; max-width: 56ch; font-size: 14px; line-height: 26px; }
+  .team { text-align: left; }
+  @media (min-width: 860px) { .team { text-align: right; } }
+  .team .big { font-family: var(--font-heading); font-weight: 300; font-size: 24px; line-height: 30px; color: var(--r-text-regular); }
+  .team .small { color: var(--r-text-soft); max-width: 24ch; margin-top: 4px; }
+  @media (min-width: 860px) { .team .small { margin-left: auto; } }
+
+  /* Anchor cards */
+  .anchors { display: grid; gap: 16px; margin-top: 40px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .anchors { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .anchors { grid-template-columns: repeat(4, 1fr); } }
+  .anchor { background: var(--r-background-softer); border: 1px solid var(--r-border-softer); padding: 24px 20px; min-height: 160px; }
+  .anchor h2 { font-size: 20px; line-height: 26px; margin-bottom: 12px; color: var(--r-text-regular); }
+  .anchor p { line-height: 24px; }
+
+  /* Quadrant styles (used by tags, markers, filter swatches) */
+  .tag { display: inline-block; font-family: var(--font-body); font-size: 12px; line-height: 18px; font-weight: 600; padding: 3px 10px; border: 2px solid var(--r-border-regular); white-space: nowrap; letter-spacing: 0; }
+  .tag.quick { background: var(--r-background-brand-softest); border-color: var(--r-border-brand); color: var(--r-text-regular); }
+  .tag.major { background: var(--r-background-inverse); border-color: var(--r-background-inverse); color: var(--r-text-inverse); }
+  .tag.fill  { background: var(--r-background-softest); border-color: var(--r-border-regular); color: var(--r-text-regular); }
+  .tag.sink  { background: var(--r-status-error-soft); border-color: var(--r-ember); color: var(--r-text-regular); }
+  .sw { display: inline-block; width: 10px; height: 10px; flex: none; }
+  .sw.quick { background: var(--r-background-brand); }
+  .sw.major { background: var(--r-background-inverse); }
+  .sw.fill  { background: var(--r-border-soft); }
+  .sw.sink  { background: var(--r-ember); }
+
+  /* Value vs effort panel */
+  .viz { display: grid; gap: 32px; margin-top: 24px; padding: 24px; background: var(--r-background-softer); border: 1px solid var(--r-border-softer); grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .viz { grid-template-columns: 1.15fr 1fr; align-items: start; } }
+  .viz h2 { font-size: 24px; line-height: 30px; letter-spacing: -0.25px; margin-bottom: 4px; }
+  .viz .hint { color: var(--r-text-soft); margin-bottom: 16px; }
+  .mx-wrap { position: relative; padding: 0 6px 30px 30px; }
+  .mx { position: relative; aspect-ratio: 1.12; border: 1px solid var(--r-border-softer); background: var(--r-background-softest); overflow: hidden; }
+  .mx .quad { position: absolute; }
+  .mx .quad span { position: absolute; top: 8px; left: 10px; font-size: 12px; line-height: 18px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .mx .quad.r span { left: auto; right: 10px; }
+  .mx .quad.b span { top: auto; bottom: 8px; }
+  .qd-quick { left: 0; top: 0; width: 40%; height: 40%; background: var(--r-background-brand-softest); border-right: 1px solid var(--r-border-softer); border-bottom: 1px solid var(--r-border-softer); }
+  .qd-major { left: 40%; top: 0; width: 60%; height: 40%; border-bottom: 1px solid var(--r-border-softer); }
+  .qd-fill  { left: 0; top: 40%; width: 40%; height: 60%; border-right: 1px solid var(--r-border-softer); }
+  .qd-sink  { left: 40%; top: 40%; width: 60%; height: 60%; background: var(--r-status-error-soft); }
+  .tick { position: absolute; font-size: 12px; line-height: 18px; color: var(--r-text-soft); }
+  .tick.x { bottom: 6px; transform: translateX(-50%); }
+  .tick.y { left: 8px; transform: translateY(50%); width: 14px; text-align: right; }
+  .axis-x { position: absolute; left: 30px; right: 6px; bottom: -2px; text-align: center; font-size: 12px; line-height: 18px; color: var(--r-text-soft); }
+  .axis-y { position: absolute; left: 0; top: 0; font-size: 12px; line-height: 18px; color: var(--r-text-soft); }
+  .pt {
+    position: absolute; width: 36px; height: 36px; margin: 0; padding: 0; transform: translate(-50%, 50%);
+    font-size: 12px; line-height: 18px; font-weight: 600; cursor: pointer; z-index: 2;
+    display: grid; place-items: center; border: 2px solid var(--r-border-regular);
+    background: var(--r-background-softest); color: var(--r-text-regular);
+  }
+  .pt.quick { background: var(--r-background-brand-softest); border-color: var(--r-border-brand); }
+  .pt.major { background: var(--r-background-inverse); border-color: var(--r-background-inverse); color: var(--r-text-inverse); }
+  .pt.fill  { background: var(--r-background-softest); border-color: var(--r-border-regular); }
+  .pt.sink  { background: var(--r-background-softest); border-color: var(--r-ember); }
+  .pt.cut   { border-style: dashed; }
+  .pt.hl, .pt:hover { outline: 2px solid var(--r-border-focused); outline-offset: 2px; z-index: 3; }
+  .pt.dim { opacity: .25; }
+  .mx-note { margin-top: 8px; color: var(--r-text-soft); }
+
+  .qlist { display: grid; gap: 0; }
+  .qrow { display: grid; grid-template-columns: 112px 1fr; gap: 4px 16px; padding: 12px 0; border-top: 1px solid var(--r-border-softer); align-items: start; }
+  .qrow:first-child { border-top: 0; padding-top: 0; }
+  .qrow .def { color: var(--r-text-regular); }
+  .qrow .ids { grid-column: 2; color: var(--r-text-soft); font-size: 12px; line-height: 18px; }
+  .qrow .ids b { color: var(--r-text-regular); font-weight: 600; }
+
+  /* Filter row */
+  .showrow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 40px 0 24px; }
+  .showrow .lbl { font-weight: 600; margin-right: 4px; font-size: 16px; }
+  .fbtn {
+    display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+    background: var(--r-background-softer); border: 2px solid var(--r-border-regular);
+    padding: 10px 16px; font-size: 12px; line-height: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .fbtn[aria-pressed="true"] { background: var(--r-background-inverse); color: var(--r-text-inverse); }
+  .showrow .total { margin-left: auto; color: var(--r-text-regular); }
+
+  /* Lanes */
+  .board { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 960px) { .board { grid-template-columns: repeat(3, 1fr); } }
+  .lane-title { font-size: 34px; line-height: 40px; text-transform: uppercase; letter-spacing: 0; padding: 12px 20px; color: var(--r-text-inverse); }
+  .lane.now .lane-title { background: var(--r-background-brand); }
+  .lane.next .lane-title { background: var(--r-background-inverse); }
+  .lane.later .lane-title { background: var(--r-border-soft); }
+  .lane-sub { margin: 12px 0 16px; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+  .empty { color: var(--r-text-soft); padding: 16px; border: 1px dashed var(--r-border-soft); text-align: center; }
+
+  .card { --stripe: var(--r-border-soft); background: var(--r-background-softer); border: 1px solid var(--r-border-softer); border-left: 5px solid var(--stripe); padding: 20px 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .lane.now .card { --stripe: var(--r-background-brand); }
+  .lane.next .card { --stripe: var(--r-background-inverse); }
+  .lane.later .card { --stripe: var(--r-border-soft); }
+  .card.hide { display: none; }
+  .card.hl { outline: 2px solid var(--r-border-focused); outline-offset: 2px; }
+  .card.flash { animation: flash 1.4s ease-out; }
+  @keyframes flash { 0% { background: var(--r-background-brand-softest); } 100% { background: var(--r-background-softer); } }
+  @media (prefers-reduced-motion: reduce) { .card.flash { animation: none; background: var(--r-background-brand-softest); } }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card h3 { font-size: 20px; line-height: 26px; letter-spacing: -0.1px; }
+  .card h3 .id { font-family: var(--font-body); font-weight: 600; font-size: 14px; margin-right: 6px; }
+  .why { line-height: 24px; }
+  .meters { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--r-text-soft); }
+  .meter { display: inline-flex; align-items: center; gap: 8px; }
+  .pips { display: inline-flex; gap: 2px; }
+  .pip { width: 14px; height: 14px; padding: 0; border: 0; cursor: pointer; background: var(--r-border-softer); }
+  .pip.on { background: var(--r-background-inverse); }
+  .pip:hover { background: var(--r-border-soft); }
+  .pip.on:hover { background: var(--r-text-strong); }
+
+  details.more { border-top: 1px solid var(--r-border-softer); padding-top: 12px; }
+  details.more summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 16px; line-height: 24px; }
+  details.more summary::-webkit-details-marker { display: none; }
+  details.more summary::before { content: "+"; display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--r-border-regular); font-weight: 400; line-height: 1; flex: none; }
+  details.more[open] summary::before { content: "\2013"; }
+  .more-body { display: grid; gap: 12px; margin-top: 12px; }
+  .more-body dt { font-weight: 600; font-size: 12px; line-height: 18px; color: var(--r-text-soft); }
+  .more-body dd { margin: 0; }
+  .laneset { display: flex; align-items: center; gap: 8px; color: var(--r-text-soft); }
+  .laneset select { background: var(--r-background-softest); border: 1px solid var(--r-border-softer); padding: 6px 8px; color: var(--r-text-regular); }
+
+  /* Cut list */
+  .cut { margin-top: 56px; }
+  .cut-title { font-size: 34px; line-height: 40px; text-transform: uppercase; padding: 12px 20px; border: 2px dashed var(--r-border-soft); color: var(--r-text-regular); }
+  .cut-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 960px) { .cut-grid { grid-template-columns: repeat(3, 1fr); } }
+  .cut .card { --stripe: var(--r-ember); border-style: dashed; border-left-style: solid; background: transparent; }
+
+  .foot { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--r-border-softer); color: var(--r-text-soft); font-size: 12px; line-height: 18px; max-width: 100ch; }
+  .foot p + p { margin-top: 4px; }
+
+  @media print {
+    @page { size: A4 landscape; margin: 8mm; }
+    body { font-size: 10.5px; line-height: 15px; }
+    main { padding: 8px 0 0; max-width: none; }
+    .showrow, .laneset, details.more { display: none; }
+    .anchors { grid-template-columns: repeat(4, 1fr); }
+    .viz { grid-template-columns: 1fr 1fr; }
+    .board, .cut-grid { grid-template-columns: repeat(3, 1fr); }
+    .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <h1>BU Pay &amp; Credit roadmap</h1>
+      <p class="intro">Riverty's first consumer card in Germany, from a friends-and-family test launch to a launch recommendation. Every card is scored for value and effort against the persona, the primary metric and the guardrail below.</p>
+    </div>
+    <div class="team">
+      <div class="big">Team of 5 (assumed)</div>
+      <div class="small">1 PM, 3 engineers, 1 designer</div>
+    </div>
+  </header>
+
+  <section class="anchors" aria-label="Strategic anchors">
+    <article class="anchor"><h2>Persona</h2><p>Lena, 32, Cologne, a salaried heavy BNPL user with no real cushion. She wants money to leave her account only after she has decided to keep an item.</p></article>
+    <article class="anchor"><h2>Primary metric</h2><p>Month-2 activity of newly activated cards, from about 54% (51.0% and 57.1%) to 62%. The target and the 150-card minimum per cohort are assumptions.</p></article>
+    <article class="anchor"><h2>Moment of misery</h2><p>She can't see in one place what she owes on the card and on her pay later orders, and two reminders for different amounts arrive in one week.</p></article>
+    <article class="anchor"><h2>Guardrail</h2><p>Partner merchant share of card volume stays at or above 58.8%, now 63.1% in Month 4. A drop is the warning.</p></article>
+  </section>
+
+  <section class="viz" aria-label="Value versus effort">
+    <div>
+      <h2>Value vs effort</h2>
+      <p class="hint">Click a marker to jump to its card.</p>
+      <div class="mx-wrap">
+        <div class="mx" role="group" aria-label="Value versus effort matrix">
+          <div class="quad qd-quick"><span><i class="sw quick"></i>Quick Win</span></div>
+          <div class="quad qd-major r"><span><i class="sw major"></i>Major Project</span></div>
+          <div class="quad qd-fill b"><span><i class="sw fill"></i>Fill-In</span></div>
+          <div class="quad qd-sink r b"><span><i class="sw sink"></i>Time Sinker</span></div>
+          <div id="pts"></div>
+        </div>
+        <div id="ticks"></div>
+        <div class="axis-x">Effort: 1 = days, 5 = months</div>
+      </div>
+      <p class="mx-note">Up is more value, right is more effort. Dashed markers are cut.</p>
+    </div>
+    <div>
+      <h2>How to read it</h2>
+      <p class="hint">Value 4 to 5 is high and effort 1 to 2 is low.</p>
+      <div class="qlist" id="qlist"></div>
+    </div>
+  </section>
+
+  <div class="showrow" id="showrow" role="group" aria-label="Filter by quadrant"></div>
+
+  <div class="board" id="board"></div>
+
+  <section class="cut" aria-labelledby="cut-h">
+    <h2 class="cut-title" id="cut-h">Cut list</h2>
+    <p class="lane-sub" id="cut-sub"></p>
+    <div class="cut-grid" id="cut"></div>
+  </section>
+
+  <div class="foot">
+    <p>Value and effort are product estimates, not engineering numbers, and the data behind them is fictional practice data. Engineering should confirm effort before anything is committed.</p>
+    <p>Scope and next steps are suggestions to confirm with engineering and risk. Click the squares on a card to change its scores, and open a card to move its lane.</p>
+    <p>Styled with Riverty Classic design tokens (embedded fallback values). GT Ultra Median and SF Pro Text are licensed fonts, so fallback fonts show where they are not installed. The Riverty logo is not included.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  var LANES = [
+    { key: 'now',   title: 'Now',   sub: 'This sprint' },
+    { key: 'next',  title: 'Next',  sub: 'The following sprints' },
+    { key: 'later', title: 'Later', sub: 'Backlog' }
+  ];
+  var QUAD = {
+    quick: { name: 'Quick Win',     def: 'High value, low effort. Do these first.' },
+    major: { name: 'Major Project', def: 'High value, high effort. Plan and fund them.' },
+    fill:  { name: 'Fill-In',       def: 'Low value, low effort. Use spare capacity.' },
+    sink:  { name: 'Time Sinker',   def: 'Low value, high effort. Avoid or cut.' }
+  };
+  var ITEMS = [
+    { id: 'B1', short: 'Decline reason', name: 'Decline reason and retry hint shown in the app', why: 'Cheap, covers online declines too, and one unexplained decline sent a participant back to debit.', value: 3, effort: 2, lane: 'now',
+      scope: 'Show the decline reason and a retry hint in the app, for in-store and online declines.',
+      next: 'Ask engineering which decline reason codes exist today, and split declines by channel.' },
+    { id: 'B3', short: 'One balance view', name: 'One balance view for card and regular pay later orders', why: 'Directly removes the two-screen misery for the heavy users with the most to track.', value: 5, effort: 2, lane: 'now',
+      scope: 'One screen showing the card balance and pay later orders together, with a single total.',
+      next: 'Confirm the card and pay later data can be joined, then test a prototype with 8 to 10 test participants.' },
+    { id: 'B8', short: 'Combined reminder', name: 'One combined reminder showing both amounts and both dates (scoped-down B8)', why: 'May fix T-104 without changing due dates, if engineering confirms no terms change.', value: 4, effort: 3, lane: 'now',
+      scope: 'One reminder that shows both amounts and both dates. The due dates themselves do not change.',
+      next: 'Check with risk and operations that a combined reminder is not a change to terms.' },
+    { id: 'B4', short: 'Pay now or later', name: 'Choose pay now or pay later per purchase after paying', why: 'The likeliest differentiator, but a proposition change that needs its own bet and metric.', value: 4, effort: 5, lane: 'next',
+      scope: 'Let her choose pay now or pay later per purchase after paying, including in store.',
+      next: 'Take it to regulatory early and give it its own bet with its own metric, activation.' },
+    { id: 'B2', short: 'Wallet at approval', name: 'Add to phone wallet straight from the approval screen', why: 'Fixes the 143 stuck cards, but online use doesn\u2019t need the wallet.', value: 2, effort: 2, lane: 'later',
+      scope: 'Offer to add the card to the phone wallet right on the approval screen.',
+      next: 'Find out why 143 activated cards never reached the wallet before building.' },
+    { id: 'B5', short: 'Partner offers', name: 'Offers from partner merchants inside the card app', why: 'Revisit after merchant discovery, since merchants gave only conditional interest.', value: 1, effort: 4, lane: 'cut',
+      scope: 'Offers from partner merchants shown inside the card app.',
+      next: 'Ask merchants what would make the card worth supporting before scoping anything.' },
+    { id: 'B6', short: 'Cashback', name: 'Cashback on every purchase', why: 'Prompts a trial, not retention (N-12), and spends margin.', value: 2, effort: 4, lane: 'cut',
+      scope: 'Cashback on every card purchase.',
+      next: 'Not scheduled. Revisit only if a trial goal replaces the retention metric.' },
+    { id: 'B7', short: 'Physical card', name: 'Physical card', why: 'No evidence anyone asked for it.', value: 1, effort: 4, lane: 'cut',
+      scope: 'A physical card alongside the digital one.',
+      next: 'Not scheduled. Reopen only if interviews show someone asks for it.' }
+  ];
+  var filter = 'all';
+  var focusId = null;
+  var openIds = {};
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function quad(v, e) {
+    if (v >= 4) return e <= 2 ? 'quick' : 'major';
+    return e <= 2 ? 'fill' : 'sink';
+  }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function laneName(k) { return k === 'cut' ? 'Cut' : LANES.filter(function (l) { return l.key === k; })[0].title; }
+  function matches(it) { return filter === 'all' || quad(it.value, it.effort) === filter; }
+  function plural(n) { return n + (n === 1 ? ' feature' : ' features'); }
+
+  function setHl(id, on) {
+    var nodes = document.querySelectorAll('[data-id="' + id + '"]');
+    for (var i = 0; i < nodes.length; i++) nodes[i].classList.toggle('hl', on);
+  }
+  function link(node, id) {
+    node.dataset.id = id;
+    node.addEventListener('mouseenter', function () { setHl(id, true); });
+    node.addEventListener('mouseleave', function () { setHl(id, false); });
+    node.addEventListener('focus', function () { setHl(id, true); });
+    node.addEventListener('blur', function () { setHl(id, false); });
+  }
+  function jump(id) {
+    var it = ITEMS.filter(function (i) { return i.id === id; })[0];
+    if (!matches(it)) { filter = 'all'; render(); }
+    var card = document.getElementById('card-' + id);
+    if (!card) return;
+    card.scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' });
+    card.classList.remove('flash');
+    void card.offsetWidth;
+    card.classList.add('flash');
+    setTimeout(function () { card.classList.remove('flash'); }, 1500);
+  }
+
+  function renderMatrix() {
+    var pts = document.getElementById('pts');
+    pts.textContent = '';
+    var groups = {};
+    ITEMS.forEach(function (it) { var k = it.effort + ':' + it.value; (groups[k] = groups[k] || []).push(it); });
+    ITEMS.forEach(function (it) {
+      var q = quad(it.value, it.effort);
+      var g = groups[it.effort + ':' + it.value];
+      var off = (g.indexOf(it) - (g.length - 1) / 2) * 40;
+      var b = el('button', 'pt ' + q + (it.lane === 'cut' ? ' cut' : '') + (matches(it) ? '' : ' dim'), it.id);
+      b.type = 'button';
+      b.style.left = 'calc(' + ((it.effort - 0.5) / 5 * 100) + '% + ' + off + 'px)';
+      b.style.bottom = ((it.value - 0.5) / 5 * 100) + '%';
+      b.setAttribute('aria-label', it.id + ', ' + it.short + ': value ' + it.value + ', effort ' + it.effort + ', ' + QUAD[q].name + ', lane ' + laneName(it.lane));
+      link(b, it.id);
+      b.addEventListener('click', function () { jump(it.id); });
+      pts.appendChild(b);
+    });
+    var ticks = document.getElementById('ticks');
+    if (!ticks.firstChild) {
+      for (var n = 1; n <= 5; n++) {
+        var x = el('span', 'tick x', String(n));
+        x.style.left = 'calc(30px + (100% - 36px) * ' + ((n - 0.5) / 5) + ')';
+        ticks.appendChild(x);
+        var y = el('span', 'tick y', String(n));
+        y.style.bottom = 'calc(30px + (100% - 30px) * ' + ((n - 0.5) / 5) + ')';
+        ticks.appendChild(y);
+      }
+      ticks.appendChild(el('span', 'axis-y', 'Value'));
+    }
+  }
+
+  function renderQList() {
+    var list = document.getElementById('qlist');
+    list.textContent = '';
+    Object.keys(QUAD).forEach(function (k) {
+      var ids = ITEMS.filter(function (it) { return quad(it.value, it.effort) === k; }).map(function (it) { return it.id; });
+      var row = el('div', 'qrow');
+      row.appendChild(el('span', 'tag ' + k, QUAD[k].name));
+      row.appendChild(el('span', 'def', QUAD[k].def));
+      var idsEl = el('span', 'ids');
+      idsEl.appendChild(document.createTextNode('Now: '));
+      idsEl.appendChild(el('b', null, ids.length ? ids.join(', ') : 'none'));
+      row.appendChild(idsEl);
+      list.appendChild(row);
+    });
+  }
+
+  function renderShow() {
+    var row = document.getElementById('showrow');
+    row.textContent = '';
+    row.appendChild(el('span', 'lbl', 'Show'));
+    var all = el('button', 'fbtn', 'All');
+    all.type = 'button';
+    all.setAttribute('aria-pressed', String(filter === 'all'));
+    all.addEventListener('click', function () { filter = 'all'; render(); });
+    row.appendChild(all);
+    Object.keys(QUAD).forEach(function (k) {
+      var b = el('button', 'fbtn');
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(filter === k));
+      b.appendChild(el('span', 'sw ' + k));
+      b.appendChild(document.createTextNode(QUAD[k].name));
+      b.addEventListener('click', function () { filter = filter === k ? 'all' : k; render(); });
+      row.appendChild(b);
+    });
+    var shown = ITEMS.filter(matches).length;
+    row.appendChild(el('span', 'total', filter === 'all' ? plural(ITEMS.length) : shown + ' of ' + plural(ITEMS.length)));
+  }
+
+  function meter(item, field, label) {
+    var wrap = el('span', 'meter');
+    wrap.appendChild(document.createTextNode(label));
+    var pips = el('span', 'pips');
+    pips.setAttribute('role', 'group');
+    pips.setAttribute('aria-label', label + ', ' + item[field] + ' of 5');
+    for (var n = 1; n <= 5; n++) {
+      (function (n) {
+        var p = el('button', 'pip' + (n <= item[field] ? ' on' : ''));
+        p.type = 'button';
+        p.id = field + '-' + item.id + '-' + n;
+        p.setAttribute('aria-label', 'Set ' + label.toLowerCase() + ' to ' + n);
+        p.setAttribute('aria-pressed', String(n === item[field]));
+        p.addEventListener('click', function () { item[field] = n; focusId = p.id; render(); });
+        pips.appendChild(p);
+      })(n);
+    }
+    wrap.appendChild(pips);
+    wrap.appendChild(document.createTextNode(item[field] + '/5'));
+    return wrap;
+  }
+
+  function buildCard(item) {
+    var q = quad(item.value, item.effort);
+    var card = el('article', 'card' + (matches(item) ? '' : ' hide'));
+    card.id = 'card-' + item.id;
+    link(card, item.id);
+
+    var top = el('div', 'card-top');
+    var h = el('h3');
+    h.appendChild(el('span', 'id', item.id));
+    h.appendChild(document.createTextNode(item.name));
+    top.appendChild(h);
+    top.appendChild(el('span', 'tag ' + q, QUAD[q].name));
+    card.appendChild(top);
+    card.appendChild(el('p', 'why', item.why));
+
+    var meters = el('div', 'meters');
+    meters.appendChild(meter(item, 'value', 'Value'));
+    meters.appendChild(meter(item, 'effort', 'Effort'));
+    card.appendChild(meters);
+
+    var d = el('details', 'more');
+    if (openIds[item.id]) d.open = true;
+    d.addEventListener('toggle', function () { openIds[item.id] = d.open; });
+    d.appendChild(el('summary', null, 'Scope and next step'));
+    var body = el('dl', 'more-body');
+    [['Scope', item.scope], ['Next step', item.next]].forEach(function (p) {
+      var w = el('div');
+      w.appendChild(el('dt', null, p[0]));
+      w.appendChild(el('dd', null, p[1]));
+      body.appendChild(w);
+    });
+    var ls = el('label', 'laneset');
+    ls.appendChild(document.createTextNode('Lane'));
+    var sel = el('select');
+    sel.id = 'lane-' + item.id;
+    [['now', 'Now'], ['next', 'Next'], ['later', 'Later'], ['cut', 'Cut']].forEach(function (o) {
+      var opt = el('option', null, o[1]);
+      opt.value = o[0];
+      if (o[0] === item.lane) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', function () { item.lane = sel.value; focusId = sel.id; render(); });
+    ls.appendChild(sel);
+    body.appendChild(ls);
+    d.appendChild(body);
+    card.appendChild(d);
+    return card;
+  }
+
+  function renderBoard() {
+    var board = document.getElementById('board');
+    board.textContent = '';
+    LANES.forEach(function (lane) {
+      var all = ITEMS.filter(function (it) { return it.lane === lane.key; });
+      var vis = all.filter(matches);
+      var section = el('section', 'lane ' + lane.key);
+      section.setAttribute('aria-label', lane.title + ' lane');
+      section.appendChild(el('h2', 'lane-title', lane.title));
+      section.appendChild(el('p', 'lane-sub', lane.sub + ', ' + plural(vis.length)));
+      var stack = el('div', 'stack');
+      if (!vis.length) stack.appendChild(el('p', 'empty', all.length ? 'No features match this filter.' : 'Nothing here yet. Open a card and move it into this lane.'));
+      all.forEach(function (it) { stack.appendChild(buildCard(it)); });
+      section.appendChild(stack);
+      board.appendChild(section);
+    });
+    var cut = document.getElementById('cut');
+    cut.textContent = '';
+    var cuts = ITEMS.filter(function (it) { return it.lane === 'cut'; });
+    var vis = cuts.filter(matches);
+    document.getElementById('cut-sub').textContent = 'Not on this roadmap, ' + plural(vis.length) + '. Open a card to move it back to a lane.';
+    if (!vis.length) cut.appendChild(el('p', 'empty', cuts.length ? 'No cut features match this filter.' : 'Nothing cut.'));
+    cuts.forEach(function (it) { cut.appendChild(buildCard(it)); });
+  }
+
+  function render() {
+    renderMatrix();
+    renderQList();
+    renderShow();
+    renderBoard();
+    if (focusId) {
+      var f = document.getElementById(focusId);
+      if (f) f.focus();
+      focusId = null;
+    }
+  }
+  render();
+})();
+</script>
+</body>
+</html>
