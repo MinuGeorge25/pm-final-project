@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What you owe: prototype</title>
+<style>
+  /* Riverty Classic tokens: embedded fallback values from the
+     rty-classic-design-guidelines skill (audited 2026-09-22). */
+  :root {
+    --r-text-strong: #000000;
+    --r-text-regular: #282828;
+    --r-text-soft: #686868;
+    --r-text-inverse: #FFFFFF;
+    --r-background-softest: #FFFFFF;
+    --r-background-softer: #F3F1F0;
+    --r-background-soft: #E7E4E2;
+    --r-background-inverse: #282828;
+    --r-background-brand: #527A42;
+    --r-background-brand-softest: #E5EBE3;
+    --r-background-state-hovered: rgba(40, 40, 40, 0.04);
+    --r-border-softest: #E7E4E2;
+    --r-border-softer: #C9C9C9;
+    --r-border-soft: #686868;
+    --r-border-interactive: #282828;
+    --r-border-regular: #282828;
+    --r-border-brand: #527A42;
+    --r-border-focused: #0071E3;
+    --r-link-enabled: #014BB3;
+    --r-status-error-regular: #B00C15;
+    --r-status-error-soft: #FEF6F6;
+    --r-status-success-regular: #298535;
+    --r-radius-none: 0;
+    --font-heading: "GT Ultra Median", Georgia, "Times New Roman", serif;
+    --font-body: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--r-background-soft); color: var(--r-text-regular); font-family: var(--font-body); font-size: 16px; line-height: 24px; }
+  .app { max-width: 420px; min-height: 100vh; margin: 0 auto; background: var(--r-background-softer); border-top: 4px solid var(--r-background-brand); border-left: 1px solid var(--r-border-softer); border-right: 1px solid var(--r-border-softer); }
+  button, select { font: inherit; color: inherit; border-radius: var(--r-radius-none); }
+  :focus-visible { outline: 2px solid var(--r-border-focused); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .bar { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 8px; background: var(--r-background-softest); border-bottom: 1px solid var(--r-border-softest); }
+  .bar h1 { margin: 0; padding: 0 8px; font-family: var(--font-heading); font-size: 24px; line-height: 30px; font-weight: 300; letter-spacing: -0.25px; color: var(--r-text-strong); }
+  .bar h1:focus { outline: none; }
+  .back { width: 44px; height: 44px; display: grid; place-items: center; background: transparent; border: 0; cursor: pointer; color: var(--r-text-regular); }
+  .back:hover { background: var(--r-background-state-hovered); }
+  .back svg { width: 22px; height: 22px; }
+  .pad { padding: 24px 16px 32px; }
+
+  /* Home */
+  .banner { background: var(--r-background-brand-softest); border: 1px solid var(--r-border-brand); padding: 8px 12px; font-size: 14px; line-height: 21px; margin: 0 0 24px; }
+  .tile { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 72px; padding: 12px 16px; margin-bottom: 12px; background: var(--r-background-softest); border: 1px solid var(--r-border-softer); text-align: left; }
+  .tile .t { font-weight: 600; color: var(--r-text-strong); }
+  .tile .s { display: block; font-size: 14px; line-height: 21px; color: var(--r-text-soft); }
+  .tile.go { cursor: pointer; border: 2px solid var(--r-border-brand); background: var(--r-background-brand-softest); }
+  .tile.go:hover { background-image: linear-gradient(var(--r-background-state-hovered), var(--r-background-state-hovered)); }
+  .tile.inert .t { color: var(--r-text-soft); font-weight: 400; }
+  .tile svg { width: 20px; height: 20px; flex: none; }
+  .proto { margin-top: 32px; padding: 16px; border: 1px dashed var(--r-border-soft); }
+  .proto h2 { margin: 0 0 4px; font-family: var(--font-body); font-size: 14px; line-height: 21px; font-weight: 600; }
+  .proto label { display: block; font-size: 14px; line-height: 21px; margin: 12px 0 4px; }
+  .proto select { width: 100%; min-height: 44px; padding: 8px; background: var(--r-background-softest); border: 1px solid var(--r-border-softer); }
+  .proto .note { font-size: 14px; line-height: 21px; color: var(--r-text-soft); margin: 8px 0 0; }
+  .proto .note:first-of-type { margin-top: 0; }
+  .btn { min-height: 48px; padding: 0 24px; background: var(--r-background-softest); color: var(--r-text-regular); border: 1px solid var(--r-border-interactive); cursor: pointer; font-size: 16px; line-height: 20px; text-transform: uppercase; }
+  .btn:hover { background-image: linear-gradient(var(--r-background-state-hovered), var(--r-background-state-hovered)); }
+  .btn.primary { background: var(--r-background-inverse); color: var(--r-text-inverse); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .proto .btn { margin-top: 12px; }
+  #checkOut { list-style: none; padding: 0; margin: 12px 0 0; font-size: 14px; line-height: 21px; }
+  #checkOut li { padding: 2px 0; }
+  #checkOut .ok::before { content: "Pass  "; color: var(--r-status-success-regular); font-weight: 600; }
+  #checkOut .bad::before { content: "Fail  "; color: var(--r-status-error-regular); font-weight: 600; }
+  #checkSummary { font-weight: 600; margin: 12px 0 0; font-size: 14px; line-height: 21px; }
+
+  /* What you owe (inline on home) */
+  .owe { margin-bottom: 32px; }
+  .owe h2 { margin: 0 0 16px; font-family: var(--font-heading); font-weight: 300; font-size: 24px; line-height: 30px; letter-spacing: -0.25px; color: var(--r-text-strong); }
+  .total-area { min-height: 82px; margin-bottom: 24px; }
+  .total { background: var(--r-background-softest); border: 1px solid var(--r-border-softest); padding: 16px; }
+  .total .lbl { display: block; font-size: 14px; line-height: 21px; color: var(--r-text-soft); }
+  .total .amt { display: block; font-family: var(--font-heading); font-weight: 300; font-size: 40px; line-height: 50px; letter-spacing: -1px; color: var(--r-text-strong); overflow-wrap: anywhere; }
+  .rows { list-style: none; margin: 0; padding: 0; background: var(--r-background-softest); border: 1px solid var(--r-border-softest); }
+  .rows li { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 60px; padding: 12px 16px; }
+  .rows li + li { border-top: 1px solid var(--r-border-softest); }
+  .rows li.failed { background: var(--r-status-error-soft); }
+  .rows .name { font-weight: 600; color: var(--r-text-strong); }
+  .rows .amt { text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+  .rows .amt.err { color: var(--r-status-error-regular); }
+  .sk { display: block; background: var(--r-background-soft); }
+  .sk.big { height: 82px; }
+  .sk.row { width: 96px; height: 18px; }
+  @media (prefers-reduced-motion: no-preference) { .sk { animation: pulse 1.4s ease-in-out infinite; } }
+  @keyframes pulse { 50% { opacity: .55; } }
+  .link-area { margin-top: 16px; }
+  .link { min-height: 44px; padding: 0; background: none; border: 0; color: var(--r-link-enabled); text-decoration: underline; cursor: pointer; font-size: 16px; line-height: 24px; }
+
+  /* Sum */
+  .eq { background: var(--r-background-softest); border: 1px solid var(--r-border-softest); padding: 8px 16px; }
+  .eq .line { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; }
+  .eq .line + .line { border-top: 1px solid var(--r-border-softest); }
+  .eq .line.tot { font-weight: 600; color: var(--r-text-strong); border-top: 2px solid var(--r-border-regular); }
+  .eq .op { color: var(--r-text-soft); margin-right: 8px; }
+  .eq .amt { text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+  .status { display: flex; align-items: center; gap: 8px; margin: 16px 0 8px; font-weight: 600; color: var(--r-status-success-regular); }
+  .status svg { width: 20px; height: 20px; }
+  .same { color: var(--r-text-soft); font-size: 14px; line-height: 21px; margin: 0 0 24px; }
+  .done { width: 100%; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Screen 1: home, with What you owe shown inline -->
+  <section id="home" class="screen" aria-labelledby="homeTitle">
+    <div class="bar"><h1 id="homeTitle" tabindex="-1">Home</h1></div>
+    <div class="pad">
+      <p class="banner">Sample data, not Riverty research. Every amount in this prototype is fictional.</p>
+
+      <section class="owe" id="coreBody" aria-labelledby="oweTitle" aria-live="polite" aria-busy="true" data-state="loading">
+        <h2 id="oweTitle">What you owe</h2>
+        <div class="total-area" id="totalArea"></div>
+        <ul class="rows">
+          <li data-part="card"><span class="name">Card</span><span class="amt"></span></li>
+          <li data-part="later"><span class="name">Pay later orders</span><span class="amt"></span></li>
+        </ul>
+        <div class="link-area" id="linkArea"></div>
+      </section>
+
+      <div class="proto">
+        <h2>For the test moderator</h2>
+        <p class="note">Prototype only. Not part of the product.</p>
+        <label for="scenario">Test scenario</label>
+        <select id="scenario"></select>
+        <p class="note" id="scenarioNote"></p>
+        <button type="button" class="btn" id="runCheck">Run self-check</button>
+        <p id="checkSummary" role="status"></p>
+        <p class="note">Styled with Riverty Classic design tokens. Licensed fonts fall back where they are not installed. The Riverty logo is not included.</p>
+        <ul id="checkOut"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 2: success -->
+  <section id="sum" class="screen" aria-labelledby="sumTitle" hidden>
+    <div class="bar">
+      <button type="button" class="back" id="sumBack" aria-label="Back to home"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M14 3l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="1.25"/></svg></button>
+      <h1 id="sumTitle" tabindex="-1">How this adds up</h1>
+    </div>
+    <div class="pad" id="sumBody"></div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Seeded data: the only source of amounts (fictional, in cents) ----------
+     r: 'ok' loads, 'fail' fails, 'never' never answers (10 s timeout)
+     c: amount in cents, ex: the figure shown on the existing screen, d: delay in ms */
+  var SCENARIOS = {
+    s1: { label: '1. Normal: both load', note: 'Card 412,50 €, pay later orders 187,30 €. Total 599,80 €.',
+          card: { r: 'ok', c: 41250, ex: 41250, d: 500 }, later: { r: 'ok', c: 18730, ex: 18730, d: 700 } },
+    s2: { label: '2. No open pay later orders', note: 'Card 412,50 €, pay later orders 0,00 €. Total equals the card amount.',
+          card: { r: 'ok', c: 41250, ex: 41250, d: 500 }, later: { r: 'ok', c: 0, ex: 0, d: 700 } },
+    s3: { label: '3. Card fails to load', note: 'Pay later loads, card does not. Expect no total.',
+          card: { r: 'fail', d: 600 }, later: { r: 'ok', c: 18730, ex: 18730, d: 700 } },
+    s4: { label: '4. Pay later fails to load', note: 'Card loads, pay later does not. Expect no total.',
+          card: { r: 'ok', c: 41250, ex: 41250, d: 500 }, later: { r: 'fail', d: 600 } },
+    s5: { label: '5. Both fail', note: 'Neither part loads. Expect two failure rows and no total.',
+          card: { r: 'fail', d: 500 }, later: { r: 'fail', d: 700 } },
+    s6: { label: '6. Slow load (3 seconds)', note: 'Placeholders for 3 seconds, then amounts and total appear together.',
+          card: { r: 'ok', c: 41250, ex: 41250, d: 3000 }, later: { r: 'ok', c: 18730, ex: 18730, d: 3000 } },
+    x1: { label: 'Extra: pay later never answers', note: 'Pay later is treated as failed after 10 seconds. Expect no total.',
+          card: { r: 'ok', c: 41250, ex: 41250, d: 500 }, later: { r: 'never' } },
+    x2: { label: 'Extra: negative amount', note: 'Pay later returns a negative amount. It is treated as failed.',
+          card: { r: 'ok', c: 41250, ex: 41250, d: 500 }, later: { r: 'ok', c: -2000, ex: -2000, d: 700 } },
+    x3: { label: 'Extra: very large amounts', note: 'Card 123.456,78 €, pay later orders 99.999,99 €. Numbers must wrap, never cut off.',
+          card: { r: 'ok', c: 12345678, ex: 12345678, d: 500 }, later: { r: 'ok', c: 9999999, ex: 9999999, d: 700 } },
+    x4: { label: 'Extra: both amounts zero', note: 'Card and pay later orders both 0,00 €. Total 0,00 €.',
+          card: { r: 'ok', c: 0, ex: 0, d: 500 }, later: { r: 'ok', c: 0, ex: 0, d: 700 } }
+  };
+
+  var TIMEOUT_MS = 10000;
+  var scale = 1;                 /* only the self-check changes this */
+  var state = { scenario: 's1', screen: 'home', card: null, later: null };
+  var token = 0, timers = [];
+  window.__failures = [];
+
+  function $(id) { return document.getElementById(id); }
+  function valid(c) { return typeof c === 'number' && isFinite(c) && Math.floor(c) === c && c >= 0; }
+  function eur(c) {
+    var e = Math.floor(c / 100), r = c % 100;
+    return String(e).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + (r < 10 ? '0' : '') + r + '\u00A0\u20AC';
+  }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  /* ---------- Navigation ---------- */
+  function show(name) {
+    ['home', 'sum'].forEach(function (n) { $(n).hidden = n !== name; });
+    state.screen = name;
+    var h = $(name).querySelector('h1');
+    window.scrollTo(0, 0);
+    if (h) h.focus({ preventScroll: true });
+  }
+
+  /* ---------- Loading (FR4, FR5, FR8) ---------- */
+  function load() {
+    token++;
+    var my = token;
+    clearTimers();
+    state.card = { st: 'loading' };
+    state.later = { st: 'loading' };
+    renderCore();
+    ['card', 'later'].forEach(function (k) {
+      var spec = SCENARIOS[state.scenario][k];
+      if (spec.r !== 'never') {
+        timers.push(setTimeout(function () { settle(k, spec, my); }, spec.d * scale));
+      }
+      timers.push(setTimeout(function () {
+        if (my === token && state[k].st === 'loading') { state[k] = { st: 'failed' }; afterSettle(my); }
+      }, TIMEOUT_MS * scale));
+    });
+  }
+  function settle(k, spec, my) {
+    if (my !== token) return;
+    state[k] = (spec.r === 'ok' && valid(spec.c)) ? { st: 'loaded', c: spec.c, ex: spec.ex } : { st: 'failed' };
+    afterSettle(my);
+  }
+  function afterSettle(my) {
+    if (my !== token) return;
+    if (state.card.st !== 'loading' && state.later.st !== 'loading') renderCore();
+  }
+
+  /* ---------- Core screen ---------- */
+  function renderCore() {
+    var body = $('coreBody'), totalArea = $('totalArea'), linkArea = $('linkArea');
+    var rows = { card: document.querySelector('[data-part="card"] .amt'), later: document.querySelector('[data-part="later"] .amt') };
+    var settled = state.card.st !== 'loading' && state.later.st !== 'loading';
+    totalArea.textContent = '';
+    linkArea.textContent = '';
+    body.setAttribute('aria-busy', String(!settled));
+    body.setAttribute('data-state', settled ? 'settled' : 'loading');
+
+    if (!settled) {
+      /* placeholders until both parts have loaded or failed (FR8) */
+      totalArea.appendChild(skeleton('sk big'));
+      ['card', 'later'].forEach(function (k) { rows[k].className = 'amt'; rows[k].parentNode.classList.remove('failed'); rows[k].textContent = ''; rows[k].appendChild(skeleton('sk row')); });
+      return;
+    }
+
+    ['card', 'later'].forEach(function (k) {
+      var p = state[k];
+      rows[k].textContent = p.st === 'loaded' ? eur(p.c) : 'Couldn\u2019t load';   /* FR1, FR5 */
+      rows[k].className = 'amt' + (p.st === 'loaded' ? '' : ' err');
+      rows[k].parentNode.classList.toggle('failed', p.st !== 'loaded');
+      rows[k].parentNode.setAttribute('aria-label', p.st === 'loaded' ? (k === 'card' ? 'Card, ' : 'Pay later orders, ') + eur(p.c).replace('\u00A0\u20AC', ' euros') : (k === 'card' ? 'Card' : 'Pay later orders') + ', couldn\u2019t load');
+    });
+
+    /* The total exists in the DOM only when both parts loaded (FR4) */
+    if (state.card.st === 'loaded' && state.later.st === 'loaded') {
+      var cents = state.card.c + state.later.c;          /* integer cents (FR2) */
+      var wrap = document.createElement('div');
+      wrap.className = 'total';
+      wrap.setAttribute('data-total', '');
+      wrap.setAttribute('aria-label', 'Total owed, ' + eur(cents).replace('\u00A0\u20AC', ' euros'));
+      var lbl = document.createElement('span'); lbl.className = 'lbl'; lbl.textContent = 'Total owed';
+      var amt = document.createElement('span'); amt.className = 'amt'; amt.textContent = eur(cents);
+      wrap.appendChild(lbl); wrap.appendChild(amt);
+      totalArea.appendChild(wrap);
+
+      /* Guard: displayed total must equal the sum of the displayed amounts */
+      if (amt.textContent !== eur(state.card.c + state.later.c) ||
+          rows.card.textContent !== eur(state.card.c) || rows.later.textContent !== eur(state.later.c)) {
+        totalArea.textContent = '';
+        window.__failures.push('Total mismatch in ' + state.scenario);
+        return;
+      }
+      var link = document.createElement('button');
+      link.type = 'button'; link.className = 'link'; link.id = 'openSum'; link.textContent = 'How this adds up';
+      link.addEventListener('click', openSum);
+      linkArea.appendChild(link);
+    }
+  }
+  function skeleton(cls) {
+    var s = document.createElement('span'); s.className = cls; s.setAttribute('aria-hidden', 'true'); return s;
+  }
+
+  /* ---------- Screen 3: how this adds up (read-only) ---------- */
+  function openSum() {
+    var c = state.card, l = state.later;
+    if (c.st !== 'loaded' || l.st !== 'loaded') { show('home'); return; }
+    var body = $('sumBody');
+    body.textContent = '';
+    var total = c.c + l.c;
+
+    var eq = div('eq');
+    eq.setAttribute('role', 'group');
+    eq.setAttribute('aria-label', 'Card ' + eur(c.c) + ' plus pay later orders ' + eur(l.c) + ' equals ' + eur(total));
+    eq.appendChild(line('', 'Card', eur(c.c), ''));
+    eq.appendChild(line('+', 'Pay later orders', eur(l.c), ''));
+    eq.appendChild(line('=', 'Total', eur(total), 'tot'));
+    body.appendChild(eq);
+
+    /* "Adds up" is computed, never typed: it renders only if the sum holds */
+    if (c.c + l.c === total && eur(total) === eur(c.c + l.c)) {
+      var st = div('status');
+      st.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.5 4.5L17 5.5" fill="none" stroke="currentColor" stroke-width="1.25"/></svg>';
+      var t = document.createElement('span'); t.textContent = 'Adds up'; st.appendChild(t);
+      body.appendChild(st);
+    }
+    /* Sentence renders only if both amounts equal the existing-screen figures */
+    if (c.c === c.ex && l.c === l.ex) {
+      var p = document.createElement('p'); p.className = 'same';
+      p.textContent = 'These are the same amounts shown on your Card and Pay later screens.';
+      body.appendChild(p);
+    }
+    var done = document.createElement('button');
+    done.type = 'button'; done.className = 'btn primary done'; done.textContent = 'Done';
+    done.addEventListener('click', function () { show('home'); });
+    body.appendChild(done);
+    show('sum');
+  }
+  function div(cls) { var d = document.createElement('div'); d.className = cls; return d; }
+  function line(op, name, amt, extra) {
+    var d = div('line' + (extra ? ' ' + extra : ''));
+    var a = document.createElement('span');
+    if (op) { var o = document.createElement('span'); o.className = 'op'; o.textContent = op; a.appendChild(o); }
+    a.appendChild(document.createTextNode(name));
+    var b = document.createElement('span'); b.className = 'amt'; b.textContent = amt;
+    d.appendChild(a); d.appendChild(b);
+    return d;
+  }
+
+  /* ---------- Home wiring ---------- */
+  var sel = $('scenario');
+  Object.keys(SCENARIOS).forEach(function (k) {
+    var o = document.createElement('option'); o.value = k; o.textContent = SCENARIOS[k].label; sel.appendChild(o);
+  });
+  function note() { $('scenarioNote').textContent = SCENARIOS[state.scenario].note; }
+  sel.addEventListener('change', function () { state.scenario = sel.value; note(); load(); });
+  note();
+
+  $('sumBack').addEventListener('click', function () { show('home'); });
+
+  /* ---------- Self-check: reads the page after each scenario and compares with the seed ---------- */
+  function expected(key) {
+    var s = SCENARIOS[key], e = {};
+    ['card', 'later'].forEach(function (k) { e[k] = (s[k].r === 'ok' && valid(s[k].c)) ? s[k].c : null; });
+    e.total = (e.card !== null && e.later !== null) ? e.card + e.later : null;
+    return e;
+  }
+  function observed() {
+    var t = document.querySelector('[data-total] .amt');
+    return {
+      card: document.querySelector('[data-part="card"] .amt').textContent,
+      later: document.querySelector('[data-part="later"] .amt').textContent,
+      total: t ? t.textContent : null,
+      link: !!$('openSum')
+    };
+  }
+  function check(key) {
+    var e = expected(key), o = observed(), notes = [];
+    ['card', 'later'].forEach(function (k) {
+      var want = e[k] === null ? 'Couldn\u2019t load' : eur(e[k]);
+      if (o[k] !== want) notes.push(k + ' shows "' + o[k] + '", expected "' + want + '"');
+    });
+    if (e.total === null) {
+      if (o.total !== null) notes.push('a total is shown while a part failed');
+      if (o.link) notes.push('the link is shown without a total');
+    } else {
+      if (o.total !== eur(e.total)) notes.push('total shows "' + o.total + '", expected "' + eur(e.total) + '"');
+      if (!o.link) notes.push('the link is missing');
+    }
+    return { label: SCENARIOS[key].label, pass: notes.length === 0, notes: notes };
+  }
+  function waitSettled() {
+    return new Promise(function (resolve) {
+      var n = 0;
+      (function poll() {
+        if ($('coreBody').getAttribute('data-state') === 'settled' || n++ > 300) return resolve();
+        setTimeout(poll, 20);
+      })();
+    });
+  }
+  function selfCheck() {
+    var btn = $('runCheck'), out = $('checkOut'), sum = $('checkSummary');
+    var prevKey = state.scenario, keys = Object.keys(SCENARIOS), results = [], i = 0;
+    btn.disabled = true; out.textContent = ''; sum.textContent = 'Running checks...';
+    scale = 0.02;
+    function next() {
+      if (i >= keys.length) {
+        scale = 1; state.scenario = prevKey; sel.value = prevKey; note(); show('home'); load();
+        var passed = results.filter(function (r) { return r.pass; }).length;
+        sum.textContent = passed + ' of ' + results.length + ' scenarios passed.';
+        results.forEach(function (r) {
+          var li = document.createElement('li');
+          li.className = r.pass ? 'ok' : 'bad';
+          li.textContent = r.label + (r.pass ? '' : ': ' + r.notes.join('; '));
+          out.appendChild(li);
+        });
+        btn.disabled = false;
+        return;
+      }
+      state.scenario = keys[i];
+      load();
+      waitSettled().then(function () { results.push(check(keys[i])); i++; next(); });
+    }
+    next();
+  }
+  $('runCheck').addEventListener('click', selfCheck);
+
+  show('home');
+  load();
+})();
+</script>
+</body>
+</html>
