@@ -41,4 +41,4 @@ May fix T-104 without changing due dates, if engineering confirms no terms chang
 - **What I cut, and the “no” I’m protecting the scope from:** Offers from partner merchants inside the card app, Revisit after merchant discovery, since merchants gave only conditional interest.
 Cashback on every purchase, Prompts a trial, not retention (N-12), and spends margin.
 Physical card, No evidence anyone asked for it.
-- **Prototype/roadmap screenshot link (paste into your deliverables):** https://github.com/MinuGeorge25/pm-final-project/blob/main/04-roadmap/roadmap-pay-credit-visual.html
+- **Prototype/roadmap screenshot link (paste into your deliverables):** https://github.com/MinuGeorge25/pm-final-project/blob/main/04-roadmap/BU%20Pay%20%26%20Credit%20roadmap.html
