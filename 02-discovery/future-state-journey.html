@@ -15,8 +15,7 @@
     --pain-bg: #FBEFEC;
     --gain: #0B6B58;
     --gain-bg: #E6F3EF;
-    --node: #1B2430;
-    --node-ink: #FFFFFF;
+    --bar: #9AA5B4;
     color-scheme: light dark;
   }
   @media (prefers-color-scheme: dark) {
@@ -30,235 +29,276 @@
       --pain-bg: #3A2420;
       --gain: #8FDCC6;
       --gain-bg: #17342D;
-      --node: #EEF1F5;
-      --node-ink: #12171E;
+      --bar: #6C7886;
     }
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    background: var(--page);
-    color: var(--ink);
+    margin: 0; background: var(--page); color: var(--ink);
     font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 15px; line-height: 1.55;
   }
-  main { max-width: 1120px; margin: 0 auto; padding: 40px 24px 48px; }
+  main { max-width: 1120px; margin: 0 auto; padding: 36px 24px 48px; }
   h1 {
     font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-    font-weight: 600;
-    font-size: clamp(26px, 4vw, 38px);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    margin: 0 0 12px;
-    max-width: 22ch;
+    font-weight: 600; font-size: clamp(26px, 4vw, 36px); line-height: 1.15;
+    letter-spacing: -0.01em; margin: 0 0 10px; max-width: 24ch;
   }
   h2 { font-size: 17px; font-weight: 600; margin: 0 0 12px; }
   p { margin: 0; }
-  .lede { max-width: 62ch; color: var(--ink-soft); font-size: 16px; }
+  .lede { color: var(--ink-soft); font-size: 16px; max-width: 70ch; }
   .lede strong { color: var(--ink); font-weight: 600; }
 
-  .persona {
-    margin: 28px 0 40px;
-    padding: 16px 20px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    display: grid;
-    gap: 6px 32px;
-    grid-template-columns: 1fr;
+  .who {
+    margin: 20px 0 18px; padding: 10px 14px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    display: flex; flex-wrap: wrap; gap: 4px 22px; font-size: 14px;
   }
-  .persona p { max-width: 80ch; }
-  .persona b { font-weight: 600; }
-  @media (min-width: 900px) { .persona { grid-template-columns: 1fr 1fr; } .persona .wide { grid-column: 1 / -1; } }
+  .who b { font-weight: 600; }
 
-  .timeline {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr;
-    position: relative;
-  }
-  @media (min-width: 640px) { .timeline { grid-template-columns: 1fr 1fr; } }
-  @media (min-width: 960px) {
-    .timeline { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .timeline::before {
-      content: "";
-      position: absolute;
-      left: 12.5%;
-      right: 12.5%;
-      top: 17px;
-      height: 2px;
-      background: var(--line);
-    }
-  }
-  .stage { position: relative; display: flex; flex-direction: column; }
-  .node {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--node);
-    color: var(--node-ink);
-    display: grid; place-items: center;
-    font-weight: 600;
-    position: relative; z-index: 1;
-    border: 4px solid var(--page);
-    box-sizing: content-box;
-    margin: -4px 0 8px -4px;
-  }
-  @media (min-width: 960px) { .node { margin: -4px auto 8px; } .stage h3 { text-align: center; } }
-  .stage h3 { font-size: 17px; margin: 0 0 10px; font-weight: 600; }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 14px 14px 12px;
-    display: flex; flex-direction: column; gap: 12px;
-    flex: 1;
-  }
-  .field { display: grid; gap: 2px; }
-  .field dt { color: var(--ink-soft); font-size: 13px; }
-  .field dd { margin: 0; }
-  dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
-  .pain, .gain { border-radius: 8px; padding: 8px 10px; }
-  .pain { background: var(--pain-bg); }
-  .pain dt { color: var(--pain); }
-  .gain { background: var(--gain-bg); margin-top: auto; }
-  .gain dt { color: var(--gain); }
-  .gain dd { font-weight: 600; }
-  .ev { color: var(--ink-soft); font-size: 13px; }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; overflow-x: auto; }
+  .diagram svg { display: block; width: 100%; min-width: 800px; height: auto; }
+  .hint { display: none; margin: 8px 2px 0; color: var(--ink-soft); font-size: 13px; }
+  @media (max-width: 860px) { .hint { display: block; } }
 
-  .adv { margin-top: 44px; }
-  .adv ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; grid-template-columns: 1fr; counter-reset: a; }
-  @media (min-width: 760px) { .adv ol { grid-template-columns: repeat(3, 1fr); } }
-  .adv li {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 14px;
-    counter-increment: a;
-  }
-  .adv li::before { content: counter(a) ". "; font-weight: 600; }
-  .adv li b { font-weight: 600; }
-  .adv li span { display: block; margin-top: 6px; }
-  .adv .ev { display: block; margin-top: 6px; }
+  /* SVG styling, driven by the same tokens as the page */
+  svg text { font-family: inherit; }
+  .t { font-size: 13px; fill: var(--ink); }
+  .tb { font-weight: 600; }
+  .sm { font-size: 12px; }
+  .lbl { font-size: 13px; font-weight: 600; fill: var(--ink-soft); }
+  .soft { fill: var(--ink-soft); }
+  .gain-t { fill: var(--gain); }
+  .pain-t { fill: var(--pain); }
+  .chev-enabler { fill: var(--page); stroke: var(--line); stroke-width: 1.2; }
+  .chev-core { fill: var(--gain-bg); stroke: var(--gain); stroke-width: 1.2; }
+  .box-pain { fill: var(--pain-bg); stroke: var(--pain); stroke-width: 1; stroke-opacity: .45; }
+  .box-gain { fill: var(--gain-bg); stroke: var(--gain); stroke-width: 1; stroke-opacity: .55; }
+  .rule { stroke: var(--line); stroke-width: 1; }
+  .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+  .curve-today { fill: none; stroke: var(--pain); stroke-width: 2.5; stroke-dasharray: 6 5; }
+  .curve-future { fill: none; stroke: var(--gain); stroke-width: 3; }
+  .dot-today { fill: var(--surface); stroke: var(--pain); stroke-width: 2.5; }
+  .dot-future { fill: var(--gain); stroke: var(--surface); stroke-width: 2; }
+  .chev-arrow { fill: none; stroke: var(--ink-soft); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .bracket { fill: none; stroke: var(--ink-soft); stroke-width: 1.4; }
+  .bracket-core { fill: none; stroke: var(--gain); stroke-width: 2; }
 
-  .limits {
-    margin-top: 36px;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    color: var(--ink-soft);
-    font-size: 13.5px;
-    max-width: 90ch;
-  }
-  .limits ul { margin: 8px 0 0; padding-left: 18px; }
-  .limits li { margin: 3px 0; }
+  .know { margin-top: 28px; }
+  .know-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .know-grid { grid-template-columns: 1fr 1.15fr 1fr; } }
+  .know-grid > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .know-grid h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  .know-grid svg { display: block; width: 100%; height: auto; }
+  .cap { color: var(--ink-soft); font-size: 12.5px; margin-top: 4px; }
+  .bar { fill: var(--bar); }
+  .bar-target { fill: var(--gain-bg); stroke: var(--gain); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .floor { stroke: var(--pain); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .axis { stroke: var(--line); stroke-width: 1; }
+
+  .limits { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 13.5px; max-width: 95ch; }
+  .limits ul { margin: 6px 0 0; padding-left: 18px; }
+  .limits li { margin: 2px 0; }
+  details.key { margin-top: 14px; max-width: 95ch; }
+  details.key summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+  details.key dl { margin: 8px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 13.5px; }
+  details.key dt { font-weight: 600; }
+  details.key dd { margin: 0; color: var(--ink-soft); }
+  :focus-visible { outline: 2px solid #2A5BD7; outline-offset: 2px; }
 
   @media print {
-    @page { size: A4 landscape; margin: 10mm; }
-    body { background: #fff; font-size: 11px; }
+    @page { size: A4 landscape; margin: 8mm; }
+    body { background: #fff; font-size: 10.5px; }
     main { padding: 0; max-width: none; }
-    .persona { margin: 12px 0 16px; padding: 8px 12px; }
-    .timeline { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .timeline::before { display: block; left: 12.5%; right: 12.5%; }
-    .card { padding: 8px; gap: 6px; }
-    dl { gap: 6px; }
-    .adv { margin-top: 16px; }
-    .adv ol { grid-template-columns: repeat(3, 1fr); }
-    .limits { margin-top: 12px; font-size: 10px; }
-    h1 { font-size: 24px; }
+    .diagram { padding: 4px; overflow: visible; }
+    .diagram svg { min-width: 0; }
+    details.key, .hint { display: none; }
+    .who { margin: 8px 0; padding: 6px 10px; font-size: 10.5px; }
+    .know { margin-top: 10px; }
+    .know-grid { grid-template-columns: 1fr 1.15fr 1fr; gap: 8px; }
+    .know-grid > div { padding: 6px 8px; }
+    .limits { margin-top: 8px; font-size: 9.5px; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
   }
 </style>
 </head>
 <body>
 <main>
   <h1>Lena's future-state journey with Riverty's first card</h1>
-  <p class="lede"><strong>Strategy:</strong> One card, one balance, one due date, and a clear answer whenever a payment fails. Friends-and-family MVP scope for Germany.</p>
+  <p class="lede"><strong>Strategy:</strong> one card, one balance, one due date, and a clear answer whenever a payment fails. Friends-and-family MVP for Germany.</p>
 
-  <section class="persona" aria-label="Persona">
-    <p><b>Persona:</b> Lena, 32, Cologne. Salaried, middling income, no real cushion. Shops almost entirely on her phone and uses whichever BNPL option appears at checkout.</p>
-    <p><b>Goal:</b> Money leaves her account only after she has decided to keep an item, and she knows at a glance what she owes and when.</p>
-    <p class="wide"><b>Friction today:</b> Her card balance and regular pay later orders sit on two screens, and two reminders for different amounts arrive in one week. A card feels like one more thing to check before payday.</p>
-  </section>
+  <div class="who">
+    <span><b>Who:</b> Lena, 32, Cologne, heavy BNPL user</span>
+    <span><b>Goal:</b> pay only after deciding to keep an item, and see what she owes and when</span>
+    <span><b>Friction:</b> two screens, two reminders, "one more thing to check before payday"</span>
+  </div>
 
-  <ol class="timeline" aria-label="Four-stage future-state journey">
-    <li class="stage">
-      <span class="node" aria-hidden="true">1</span>
-      <h3>Set up</h3>
-      <div class="card">
-        <dl>
-          <div class="field"><dt>User action</dt><dd>Adds the card to her phone wallet from the approval screen.</dd></div>
-          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Confident</dd></div>
-          <div class="field pain"><dt>Pain point addressed</dt><dd>1 in 3 activated cards never reached the wallet. <span class="ev">T-102</span></dd></div>
-          <div class="field gain"><dt>Action → Benefit</dt><dd>Adds card at approval → ready for shops from day one. <span class="ev">B2</span></dd></div>
-        </dl>
-      </div>
-    </li>
-    <li class="stage">
-      <span class="node" aria-hidden="true">2</span>
-      <h3>Pay in shop</h3>
-      <div class="card">
-        <dl>
-          <div class="field"><dt>User action</dt><dd>Taps the card in a shop and, if declined, reads the reason.</dd></div>
-          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Reassured</dd></div>
-          <div class="field pain"><dt>Pain point addressed</dt><dd>A silent bakery decline sent her back to her debit card. <span class="ev">N-06, T-101</span></dd></div>
-          <div class="field gain"><dt>Action → Benefit</dt><dd>Taps card, sees why if declined → retries without switching cards. <span class="ev">B1</span></dd></div>
-        </dl>
-      </div>
-    </li>
-    <li class="stage">
-      <span class="node" aria-hidden="true">3</span>
-      <h3>Check balance</h3>
-      <div class="card">
-        <dl>
-          <div class="field"><dt>User action</dt><dd>Opens one screen showing card spending and pay later orders together.</dd></div>
-          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Clear</dd></div>
-          <div class="field pain"><dt>Pain point addressed</dt><dd>Two screens left her asking which total is real. <span class="ev">N-07, T-103</span></dd></div>
-          <div class="field gain"><dt>Action → Benefit</dt><dd>Opens one screen → sees one total, no mental math before payday. <span class="ev">B3</span></dd></div>
-        </dl>
-      </div>
-    </li>
-    <li class="stage">
-      <span class="node" aria-hidden="true">4</span>
-      <h3>Plan payday</h3>
-      <div class="card">
-        <dl>
-          <div class="field"><dt>User action</dt><dd>Receives one reminder with one due date and one amount.</dd></div>
-          <div class="field"><dt>Internal state (hypothesis)</dt><dd>Prepared</dd></div>
-          <div class="field pain"><dt>Pain point addressed</dt><dd>Two reminders for different amounts arrived in one week. <span class="ev">T-104</span></dd></div>
-          <div class="field gain"><dt>Action → Benefit</dt><dd>Gets one reminder → knows what is due and when. <span class="ev">B8</span></dd></div>
-        </dl>
-      </div>
-    </li>
-  </ol>
+  <figure class="diagram" style="margin:0">
+    <svg viewBox="0 0 900 545" role="img" aria-labelledby="dt dd">
+      <title id="dt">Future-state journey map for Lena</title>
+      <desc id="dd">Four stages from set up to payday. For each stage the diagram shows what Lena does, an illustrative emotion curve comparing today with the fix, the pain today with evidence, and the fix. Stages 1 and 2 are enablers and stages 3 and 4 are the main bet.</desc>
 
-  <section class="adv" aria-labelledby="adv-h">
-    <h2 id="adv-h">Three advantages over the manual workaround</h2>
-    <ol>
-      <li><b>One source of truth</b>
-        <span>Checks one screen → no more adding up totals across apps and screens.</span>
-        <span class="ev">N-02, T-103</span></li>
-      <li><b>Explained failures</b>
-        <span>Reads why a payment failed → stays on the card instead of reverting to debit.</span>
-        <span class="ev">N-06, T-101</span></li>
-      <li><b>Same tap as her bank card</b>
-        <span>Pays from the phone wallet → no extra habit to remember in shops.</span>
-        <span class="ev">N-03, B2</span></li>
-    </ol>
+      <!-- Stage chevrons -->
+      <g>
+        <path class="chev-enabler" d="M120 14H290L310 44L290 74H120L140 44Z"/>
+        <text class="t tb" x="215" y="36" text-anchor="middle">1  Set up</text>
+        <text class="t sm soft" x="215" y="56" text-anchor="middle">Enabler</text>
+
+        <path class="chev-enabler" d="M310 14H480L500 44L480 74H310L330 44Z"/>
+        <text class="t tb" x="405" y="36" text-anchor="middle">2  Pay in shop</text>
+        <text class="t sm soft" x="405" y="56" text-anchor="middle">Enabler</text>
+
+        <path class="chev-core" d="M500 14H670L690 44L670 74H500L520 44Z"/>
+        <text class="t tb" x="595" y="36" text-anchor="middle">3  Check balance</text>
+        <text class="t sm gain-t tb" x="595" y="56" text-anchor="middle">Core to the bet</text>
+
+        <path class="chev-core" d="M690 14H860L880 44L860 74H690L710 44Z"/>
+        <text class="t tb" x="785" y="36" text-anchor="middle">4  Plan payday</text>
+        <text class="t sm gain-t tb" x="785" y="56" text-anchor="middle">Core to the bet</text>
+      </g>
+
+      <!-- Lane: Lena does -->
+      <line class="rule" x1="0" y1="86" x2="900" y2="86"/>
+      <text class="lbl" x="10" y="121">Lena does</text>
+      <g class="t" text-anchor="middle">
+        <text x="215" y="112">Adds card to wallet</text><text x="215" y="130">right after approval</text>
+        <text x="405" y="121">Taps card in a shop</text>
+        <text x="595" y="112">Opens one screen for</text><text x="595" y="130">card and pay later</text>
+        <text x="785" y="112">Gets one reminder</text><text x="785" y="130">before payday</text>
+      </g>
+
+      <!-- Lane: Feels (illustrative curve) -->
+      <line class="rule" x1="0" y1="158" x2="900" y2="158"/>
+      <text class="lbl" x="10" y="244">Feels</text>
+      <text class="t sm soft" x="108" y="198" text-anchor="end">better</text>
+      <text class="t sm soft" x="108" y="294" text-anchor="end">worse</text>
+      <line class="grid" x1="120" y1="195" x2="880" y2="195"/>
+      <line class="grid" x1="120" y1="242" x2="880" y2="242"/>
+      <line class="grid" x1="120" y1="289" x2="880" y2="289"/>
+      <polyline class="curve-today" points="215,268 405,292 595,288 785,272"/>
+      <polyline class="curve-future" points="215,205 405,203 595,198 785,194"/>
+      <g>
+        <circle class="dot-today" cx="215" cy="268" r="5"/><circle class="dot-today" cx="405" cy="292" r="5"/><circle class="dot-today" cx="595" cy="288" r="5"/><circle class="dot-today" cx="785" cy="272" r="5"/>
+        <circle class="dot-future" cx="215" cy="205" r="5.5"/><circle class="dot-future" cx="405" cy="203" r="5.5"/><circle class="dot-future" cx="595" cy="198" r="5.5"/><circle class="dot-future" cx="785" cy="194" r="5.5"/>
+      </g>
+      <g class="t sm gain-t tb" text-anchor="middle">
+        <text x="215" y="184">Confident</text><text x="405" y="182">Reassured</text><text x="595" y="177">Clear</text><text x="785" y="173">Prepared</text>
+      </g>
+      <line class="curve-today" x1="120" y1="316" x2="150" y2="316"/>
+      <text class="t sm soft" x="158" y="320">Today</text>
+      <line class="curve-future" x1="215" y1="316" x2="245" y2="316"/>
+      <text class="t sm soft" x="253" y="320">With the fix</text>
+      <text class="t sm soft" x="360" y="320">Illustrative: feelings are hypotheses, not measured.</text>
+
+      <!-- Lane: Pain today -->
+      <line class="rule" x1="0" y1="332" x2="900" y2="332"/>
+      <text class="lbl" x="10" y="376">Pain today</text>
+      <g>
+        <rect class="box-pain" x="126" y="342" width="178" height="68" rx="8"/>
+        <rect class="box-pain" x="316" y="342" width="178" height="68" rx="8"/>
+        <rect class="box-pain" x="506" y="342" width="178" height="68" rx="8"/>
+        <rect class="box-pain" x="696" y="342" width="178" height="68" rx="8"/>
+      </g>
+      <g class="t" text-anchor="middle">
+        <text x="215" y="361">143 of 431 activated</text><text x="215" y="377">cards never reached</text><text class="sm soft" x="215" y="393">the wallet (T-102)</text>
+        <text x="405" y="361">48 declines showed no</text><text x="405" y="377">reason; one went back</text><text class="sm soft" x="405" y="393">to debit (T-101, N-06)</text>
+        <text x="595" y="361">Two screens, two totals:</text><text x="595" y="377">which one is real?</text><text class="sm soft" x="595" y="393">(T-103, N-07)</text>
+        <text x="785" y="361">Two reminders for</text><text x="785" y="377">different amounts in</text><text class="sm soft" x="785" y="393">one week (T-104)</text>
+      </g>
+
+      <!-- Arrows pain to fix -->
+      <g>
+        <path class="chev-arrow" d="M208 416L215 425L222 416"/>
+        <path class="chev-arrow" d="M398 416L405 425L412 416"/>
+        <path class="chev-arrow" d="M588 416L595 425L602 416"/>
+        <path class="chev-arrow" d="M778 416L785 425L792 416"/>
+      </g>
+
+      <!-- Lane: With the fix -->
+      <text class="lbl" x="10" y="466">With the fix</text>
+      <g>
+        <rect class="box-gain" x="126" y="436" width="178" height="60" rx="8"/>
+        <rect class="box-gain" x="316" y="436" width="178" height="60" rx="8"/>
+        <rect class="box-gain" x="506" y="436" width="178" height="60" rx="8"/>
+        <rect class="box-gain" x="696" y="436" width="178" height="60" rx="8"/>
+      </g>
+      <g class="t tb" text-anchor="middle">
+        <text x="215" y="454">Card ready for shops</text><text x="215" y="470">from day one</text><text class="sm gain-t" x="215" y="486">B2 wallet at approval</text>
+        <text x="405" y="454">Sees why, and can</text><text x="405" y="470">retry</text><text class="sm gain-t" x="405" y="486">B1 decline reason</text>
+        <text x="595" y="454">One total for card and</text><text x="595" y="470">pay later orders</text><text class="sm gain-t" x="595" y="486">B3 one balance</text>
+        <text x="785" y="454">One due date and</text><text x="785" y="470">one amount</text><text class="sm gain-t" x="785" y="486">B8 one reminder</text>
+      </g>
+
+      <!-- Brackets -->
+      <path class="bracket" d="M126 502V510H494V502"/>
+      <text class="t sm soft" x="310" y="528" text-anchor="middle">Enablers for use in shops (heavy users: 12.1% of purchases in store)</text>
+      <path class="bracket-core" d="M506 502V510H874V502"/>
+      <text class="t sm gain-t tb" x="690" y="528" text-anchor="middle">Main bet: tracking what she owes</text>
+    </svg>
+  </figure>
+  <p class="hint">Scroll sideways to see the whole diagram.</p>
+
+  <section class="know" aria-labelledby="know-h">
+    <h2 id="know-h">How we will know it is working</h2>
+    <div class="know-grid">
+      <div>
+        <h3>Success metric: month-2 activity</h3>
+        <svg viewBox="0 0 260 150" role="img" aria-label="Bar chart: Month 1 cohort 51.0 percent, Month 2 cohort 57.1 percent, target 62 percent">
+          <line class="axis" x1="10" y1="120" x2="250" y2="120"/>
+          <rect class="bar" x="20" y="43.5" width="60" height="76.5" rx="3"/>
+          <rect class="bar" x="100" y="34.4" width="60" height="85.6" rx="3"/>
+          <rect class="bar-target" x="180" y="27" width="60" height="93" rx="3"/>
+          <g class="t sm tb" text-anchor="middle"><text x="50" y="37">51.0%</text><text x="130" y="28">57.1%</text><text class="gain-t" x="210" y="21">62%</text></g>
+          <g class="t sm soft" text-anchor="middle"><text x="50" y="138">Month 1</text><text x="130" y="138">Month 2</text><text x="210" y="138">Target</text></g>
+        </svg>
+        <p class="cap">Share of cards active two months after activation (cohort_activity.csv). The 62% target is an assumption.</p>
+      </div>
+      <div>
+        <h3>Guardrail: partner merchant share of volume</h3>
+        <svg viewBox="0 0 300 150" role="img" aria-label="Bar chart of partner merchant share by month: 56.8, 63.0, 58.8, 63.1 percent, with a floor at 58.8 percent">
+          <line class="axis" x1="8" y1="120" x2="292" y2="120"/>
+          <rect class="bar" x="18" y="34.8" width="52" height="85.2" rx="3"/>
+          <rect class="bar" x="88" y="25.5" width="52" height="94.5" rx="3"/>
+          <rect class="bar" x="158" y="31.8" width="52" height="88.2" rx="3"/>
+          <rect class="bar" x="228" y="25.4" width="52" height="94.6" rx="3"/>
+          <line class="floor" x1="8" y1="31.8" x2="292" y2="31.8"/>
+          <g class="t sm tb" text-anchor="middle"><text x="44" y="28">56.8%</text><text x="114" y="19">63.0%</text><text x="184" y="25">58.8%</text><text x="254" y="19">63.1%</text></g>
+          <g class="t sm soft" text-anchor="middle"><text x="44" y="138">Month 1</text><text x="114" y="138">Month 2</text><text x="184" y="138">Month 3</text><text x="254" y="138">Month 4</text></g>
+        </svg>
+        <p class="cap">Dashed line: floor of 58.8%, an assumption set at the Month 3 low (monthly_trend.csv).</p>
+      </div>
+      <div>
+        <h3>Decision window</h3>
+        <p>Go or no-go after two cohorts of at least 150 activated cards each, observed through month 2.</p>
+        <p class="cap" style="margin-top:8px">Go if both reach 62% or more and the guardrail holds. Rethink if both stay at 51 to 58%, or if either falls below 51%. The 150-card minimum is an assumption.</p>
+      </div>
+    </div>
   </section>
 
   <section class="limits" aria-label="Limits of the evidence">
     <p>Limits to state when presenting this map:</p>
     <ul>
-      <li>The data pack is fictional practice data, and the persona combines quotes from different participants.</li>
-      <li>Feelings are hypotheses, and the manual workaround is inferred: the research does not document spreadsheets, screenshots or calendar reminders.</li>
-      <li>The advantages are design intentions from backlog items B1, B2, B3 and B8. No test has shown they change behaviour.</li>
-      <li>Not covered: late purchase notifications (T-108), repeated ID photo request (T-106) and the in-store pay now or later choice (B4), which is unproven and needs its own approval.</li>
-      <li>The test group is mostly colleagues, so real customers may behave differently.</li>
+      <li>The data pack is fictional practice data, and Lena is a composite of quotes from different participants.</li>
+      <li>The emotion curve is illustrative. The manual workaround is inferred, since the research does not document spreadsheets, screenshots or calendar reminders.</li>
+      <li>The fixes are design intentions (B1, B2, B3, B8). The activity decay could be novelty fading as easily as tracking friction.</li>
+      <li>Not covered: late purchase notifications (T-108), the repeated ID photo request (T-106) and the in-store pay now or later choice (B4), which needs its own approval.</li>
+      <li>Employees hold 253 of the 431 activated cards, so real customers may behave differently.</li>
     </ul>
   </section>
+
+  <details class="key">
+    <summary>Source key: what the codes mean</summary>
+    <dl>
+      <dt>N-06</dt><dd>Test participant: declined at a bakery, the app did not say why, went back to a debit card that week.</dd>
+      <dt>N-07</dt><dd>Test participant: could not see in one place what is owed on the card and on pay later orders.</dd>
+      <dt>T-101</dt><dd>In-store payment declined with no reason shown. 48 in-store declines in the test log.</dd>
+      <dt>T-102</dt><dd>Adding the card to the phone wallet fails or is abandoned. 143 activated cards never reached the wallet.</dd>
+      <dt>T-103</dt><dd>Card balance and pay later orders shown on two screens.</dd>
+      <dt>T-104</dt><dd>Statement date and pay later due dates differ, so two reminders arrive in one week.</dd>
+      <dt>B1, B2, B3, B8</dt><dd>Backlog items: decline reason and retry hint, wallet from the approval screen, one balance view, one due date.</dd>
+    </dl>
+  </details>
 </main>
 </body>
 </html>
