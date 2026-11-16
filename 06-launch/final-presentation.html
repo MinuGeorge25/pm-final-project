@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What you owe: one balance view for Riverty’s first consumer card</title>
+<style>
+  :root {
+    --bg: #07162C;
+    --fg: #ffffff;
+    --muted: #cbd5e1;
+    --orange: #fb923c;
+    --cyan: #22d3ee;
+    --teal: #34d399;
+    --blue: #60a5fa;
+    --violet: #a78bfa;
+    --pink: #f472b6;
+    --eyebrow: #fdba74;
+    --line: rgba(251, 146, 60, 0.25);
+    --panel: rgba(255, 255, 255, 0.04);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-snap-type: y proximity; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: clamp(13px, 1.02vw, 17px); line-height: 1.5;
+  }
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding-left: 1.15em; }
+  li { margin: 0.18em 0; }
+  a { color: var(--cyan); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+  /* Progress bar and dot nav */
+  #bar { position: fixed; top: 0; left: 0; height: 4px; width: 0; background: linear-gradient(90deg, var(--orange), var(--pink)); z-index: 50; }
+  .dots { position: fixed; right: 14px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 40; }
+  .dots button {
+    width: 12px; height: 12px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1.5px solid var(--muted); background: transparent; position: relative;
+  }
+  .dots button[aria-current="true"] { background: var(--orange); border-color: var(--orange); transform: scale(1.25); }
+  .dots button::after {
+    content: attr(data-label); position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg);
+    background: rgba(7, 22, 44, 0.95); border: 1px solid var(--line); padding: 2px 8px; border-radius: 8px;
+    white-space: nowrap; opacity: 0; pointer-events: none;
+  }
+  .dots button:hover::after, .dots button:focus-visible::after { opacity: 1; }
+  .keys { position: fixed; left: 18px; bottom: 12px; z-index: 40; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(203, 213, 225, 0.65); }
+
+  /* Slides */
+  section {
+    min-height: 100vh; scroll-snap-align: start;
+    padding: clamp(28px, 6vh, 64px) clamp(26px, 6vw, 96px);
+    display: flex; flex-direction: column; justify-content: center;
+    background:
+      radial-gradient(900px 500px at 88% -8%, rgba(251, 146, 60, 0.10), transparent 60%),
+      radial-gradient(700px 420px at -6% 108%, rgba(96, 165, 250, 0.08), transparent 60%),
+      var(--bg);
+  }
+  .wrap { width: 100%; max-width: 1240px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--eyebrow); font-size: 0.72rem; }
+  .slide-title { font-size: clamp(1.5rem, 2.5vw, 2.3rem); line-height: 1.15; letter-spacing: -0.01em; margin: 0.25rem 0 0.2rem; }
+  .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.1rem; }
+  .label { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.66rem; color: var(--muted); margin-bottom: 0.4rem; display: block; }
+  .muted { color: var(--muted); }
+  .mono { font-family: var(--mono); }
+
+  .card {
+    border-radius: 16px; border: 1px solid var(--line); background: var(--panel);
+    padding: 0.95rem 1.1rem;
+  }
+  .card.hero {
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.20), rgba(96, 165, 250, 0.08) 62%, rgba(7, 22, 44, 0.3));
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.40);
+  }
+  .card.shadow { box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32); }
+  .t-cyan { border-color: rgba(34, 211, 238, 0.35); } .t-cyan .label { color: var(--cyan); }
+  .t-teal { border-color: rgba(52, 211, 153, 0.35); } .t-teal .label { color: var(--teal); }
+  .t-blue { border-color: rgba(96, 165, 250, 0.35); } .t-blue .label { color: var(--blue); }
+  .t-violet { border-color: rgba(167, 139, 250, 0.35); } .t-violet .label { color: var(--violet); }
+  .t-pink { border-color: rgba(244, 114, 182, 0.35); } .t-pink .label { color: var(--pink); }
+  .t-orange .label { color: var(--orange); }
+  .grid { display: grid; gap: 14px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g6 { grid-template-columns: repeat(6, 1fr); }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.5em; padding: 0.35em 0.85em; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(251, 146, 60, 0.08); font-size: 0.84rem; line-height: 1.35;
+  }
+  .pill b { font-family: var(--mono); font-weight: 600; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--eyebrow); }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.15em 0.6em; border-radius: 8px; border: 1px solid currentColor; }
+  .stat { border-radius: 14px; border: 1px solid var(--line); background: var(--panel); padding: 0.7rem 0.85rem; }
+  .stat b { display: block; font-family: var(--mono); font-size: 1.12rem; line-height: 1.25; margin-top: 0.2rem; }
+  .stat span { display: block; font-size: 0.8rem; color: var(--muted); line-height: 1.35; margin-top: 0.25rem; }
+
+  /* Cover */
+  .cover h1 { font-size: clamp(2rem, 4.6vw, 3.9rem); line-height: 1.08; letter-spacing: -0.02em; margin: 0.6rem 0 1rem; max-width: 20ch; }
+  .cover .pitch { font-size: clamp(1.02rem, 1.5vw, 1.4rem); color: var(--muted); max-width: 52ch; }
+  .cover .meta { margin-top: 1.6rem; display: grid; gap: 12px; grid-template-columns: repeat(3, auto); justify-content: start; }
+  .cover .meta .card { padding: 0.7rem 1rem; }
+  .cover .meta p { font-size: 0.92rem; }
+
+  /* Strategy */
+  .s5 .top { grid-template-columns: 1fr 1fr; }
+  .callout { border-left: 4px solid var(--orange); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.7rem; }
+  .chips .pill { background: rgba(34, 211, 238, 0.08); border-color: rgba(34, 211, 238, 0.3); }
+
+  /* Research */
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { counter-increment: s; position: relative; padding-left: 1.9em; margin: 0.35em 0; font-size: 0.9rem; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0.05em; width: 1.35em; height: 1.35em; border-radius: 50%; background: rgba(251, 146, 60, 0.2); color: var(--orange); font-family: var(--mono); font-size: 0.78rem; display: grid; place-items: center; }
+  .journey { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stage { position: relative; display: flex; flex-direction: column; gap: 0.35rem; }
+  .stage h3 { font-size: 0.98rem; }
+  .stage .row { font-size: 0.84rem; line-height: 1.4; }
+  .stage .row b { display: block; font-family: var(--mono); font-weight: 500; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .stage:not(:last-child)::after { content: "\2192"; position: absolute; right: -11px; top: 14px; color: var(--eyebrow); font-size: 1rem; z-index: 2; }
+  .stage.miss { border-color: var(--orange); background: linear-gradient(160deg, rgba(251, 146, 60, 0.24), rgba(251, 146, 60, 0.06)); box-shadow: 0 0 0 1px var(--orange), 0 16px 38px rgba(251, 146, 60, 0.18); }
+  .stage .flag { color: #07162C; background: var(--orange); border-color: var(--orange); font-weight: 700; align-self: flex-start; }
+
+  /* Blueprint */
+  .lane h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; margin-bottom: 0.55rem; }
+  .lane h3 .tag { font-size: 0.64rem; }
+  .feat { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.10); background: rgba(255, 255, 255, 0.035); padding: 0.55rem 0.7rem; margin-bottom: 8px; }
+  .feat b { font-size: 0.86rem; line-height: 1.35; display: block; }
+  .feat b i { font-style: normal; font-family: var(--mono); color: var(--eyebrow); margin-right: 0.45em; }
+  .feat p { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.4; }
+  .lane.now { border-color: rgba(251, 146, 60, 0.55); } .lane.now h3 .tag { color: var(--orange); }
+  .lane.next { border-color: rgba(34, 211, 238, 0.4); } .lane.next h3 .tag { color: var(--cyan); }
+  .lane.later { border-color: rgba(167, 139, 250, 0.4); } .lane.later h3 .tag { color: var(--violet); }
+  .cutrow { grid-template-columns: repeat(3, 1fr); }
+  .cutrow .feat { margin: 0; border-style: dashed; border-color: rgba(244, 114, 182, 0.4); }
+  .proto { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45em 1em; border-radius: 999px; border: 1px solid var(--cyan); background: rgba(34, 211, 238, 0.10); font-family: var(--mono); font-size: 0.86rem; }
+  .proto .tag { color: var(--cyan); border-color: var(--cyan); }
+  .must { padding-left: 1.2em; font-size: 0.84rem; }
+
+  /* Validation */
+  .rules .card b { font-family: var(--mono); letter-spacing: 0.1em; font-size: 0.8rem; }
+  .rules .ship { border-color: rgba(52, 211, 153, 0.5); } .rules .ship b { color: var(--teal); }
+  .rules .iter { border-color: rgba(251, 146, 60, 0.5); } .rules .iter b { color: var(--orange); }
+  .rules .kill { border-color: rgba(244, 114, 182, 0.5); } .rules .kill b { color: var(--pink); }
+  .rules p { font-size: 0.84rem; margin-top: 0.3rem; }
+
+  /* Launch */
+  .bad { border-color: rgba(244, 114, 182, 0.55); background: linear-gradient(160deg, rgba(244, 114, 182, 0.12), rgba(244, 114, 182, 0.03)); }
+  .bad table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .bad th { font-family: var(--mono); font-weight: 500; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 0.5rem 0.3rem 0; }
+  .bad td { padding: 0.28rem 0.5rem 0.28rem 0; border-top: 1px solid rgba(255, 255, 255, 0.08); vertical-align: top; line-height: 1.35; }
+  .bad td:first-child { font-weight: 600; }
+  .tbc { color: var(--muted); font-style: italic; }
+
+  /* Story */
+  .story p { font-size: 0.86rem; margin-bottom: 0.55rem; }
+  .story li { font-size: 0.86rem; margin: 0.35em 0; }
+
+  /* Thank you */
+  .thanks { text-align: center; align-items: center; }
+  .thanks h2 { font-size: clamp(2.4rem, 6vw, 5rem); line-height: 1.05; letter-spacing: -0.02em; margin: 0.4rem 0 1.4rem; }
+  .thanks .row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 0.8rem; }
+  .submit { font-weight: 700; color: #07162C; background: linear-gradient(90deg, var(--orange), #fdba74); border: 0; box-shadow: 0 14px 36px rgba(251, 146, 60, 0.35); padding: 0.7em 1.4em; font-size: 1rem; }
+
+  @media (max-width: 1000px) {
+    .g2, .g3, .g4, .g6, .s5 .top, .cutrow, .cover .meta { grid-template-columns: 1fr; }
+    .journey { grid-template-columns: 1fr 1fr; }
+    .stage::after { display: none; }
+    .dots, .keys { display: none; }
+  }
+  @media (max-width: 600px) { .journey { grid-template-columns: 1fr; } }
+  @media print { #bar, .dots, .keys { display: none; } section { min-height: auto; page-break-after: always; } }
+</style>
+</head>
+<body>
+<div id="bar" aria-hidden="true"></div>
+<nav class="dots" aria-label="Slides">
+  <button type="button" data-label="Cover" aria-label="Go to Cover"></button>
+  <button type="button" data-label="Strategy" aria-label="Go to Strategy"></button>
+  <button type="button" data-label="Research" aria-label="Go to Research"></button>
+  <button type="button" data-label="Blueprint" aria-label="Go to Blueprint"></button>
+  <button type="button" data-label="Validation" aria-label="Go to Validation"></button>
+  <button type="button" data-label="Launch" aria-label="Go to Launch"></button>
+  <button type="button" data-label="Story" aria-label="Go to Story"></button>
+  <button type="button" data-label="Submit" aria-label="Go to Submit"></button>
+</nav>
+<div class="keys" aria-hidden="true">↑ ↓ Space · Home · End · Esc</div>
+
+<main>
+
+<!-- 1. Cover -->
+<section class="cover" id="cover" aria-labelledby="t-cover">
+  <div class="wrap">
+    <p class="eyebrow">Riverty BU Pay &amp; Credit · First Consumer Card</p>
+    <h1 id="t-cover">What you owe: one balance view for Riverty’s first consumer card</h1>
+    <p class="pitch">Riverty’s first card shows Lena what she owes on the card and on her pay later orders in one place, so it stops being one more thing to check before payday.</p>
+    <div class="meta">
+      <div class="card hero"><span class="label">Name / cohort</span><p>Minu George · Riverty cohort 2, Product School Product Management</p></div>
+      <div class="card"><span class="label">Repo link</span><p><a href="https://github.com/MinuGeorge25/pm-final-project" target="_blank" rel="noopener noreferrer">github.com/MinuGeorge25/pm-final-project</a></p></div>
+      <div class="card"><span class="label">Prototype file</span><p class="mono">04-roadmap/prototype.html</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Strategy -->
+<section class="s5" id="strategy" aria-labelledby="t-strategy">
+  <div class="wrap">
+    <p class="eyebrow">Slide 5 · Strategy</p>
+    <h2 class="slide-title" id="t-strategy">Strategy</h2>
+    <p class="sub">Problem statement hook · Value proposition · Data-backed hypothesis</p>
+    <div class="grid g2 top">
+      <div class="card hero">
+        <span class="label t-orange" style="color:var(--orange)">Problem statement hook</span>
+        <p style="font-size:1.08rem;line-height:1.5">We must solve the risk that Riverty’s first card becomes one more thing heavy BNPL users have to check before payday, and drops out of their habit, by addressing the pain of working out what she owes and when across separate screens, mismatched reminders and an unexplained decline.</p>
+      </div>
+      <div class="card shadow t-cyan">
+        <span class="label">Value proposition</span>
+        <p style="font-size:0.9rem">Riverty’s first consumer card gives Lena one place to see what she owes on the card and on her pay later orders, with one total she can trust, so it stops being one more thing to check before payday. It matters because heavy BNPL users carry the most open obligations (5.82 purchases a month, instalments on 25.4% of purchases), and today they piece the picture together from two screens (N-07, T-103). With one view, the card is more likely to stay in use after the first month. Month-2 activity is 51.0% and 57.1% today, with a 62% target.</p>
+        <p style="font-size:0.9rem;margin-top:0.5rem">It is worth building now because it is a low-effort fix (effort 2) that doesn’t change terms. The larger changes, such as due dates and pay-later control in store, need months of approval (N-11).</p>
+      </div>
+    </div>
+    <div class="card hero callout" style="margin-top:14px">
+      <span class="label" style="color:var(--orange)">Data-backed hypothesis</span>
+      <p style="font-size:0.98rem">Based on N-07 (“I could not see in one place what I owe on the card and what I owe on my normal pay later orders”) and on cohort activity falling from 77.6% in month 0 to 51.0% in month 2 for the Month 1 cohort, I believe that giving Lena, a heavy BNPL user, one balance, one due date and a plain reason whenever a payment fails will keep her using the card after her first month. I will measure this as an 8-point (about 15%) rise in month-2 activity, from a baseline of about 54% (the 51.0% and 57.1% cohorts) to 62%. I will protect partner merchant share of card volume at or above 58.8%, and will make a go/no-go decision once two consecutive cohorts of at least 150 activated cards have been observed through month 2.</p>
+      <div class="chips">
+        <span class="pill"><b>Evidence</b> 77.6% → 51.0% active, month 0 to month 2</span>
+        <span class="pill"><b>Target</b> about 54% → 62% month-2 activity</span>
+        <span class="pill"><b>Guardrail</b> partner merchant share ≥ 58.8%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Research -->
+<section id="research" aria-labelledby="t-research">
+  <div class="wrap">
+    <p class="eyebrow">Slide 6 · Research</p>
+    <h2 class="slide-title" id="t-research">Research</h2>
+    <p class="sub">Competitive analysis / workaround summary · Journey map (key moments)</p>
+    <div class="grid" style="grid-template-columns:1.15fr 1fr;gap:14px">
+      <div class="card shadow">
+        <span class="label">Competitive analysis / workaround · Persona 1: Lena, the payday checker</span>
+        <p style="font-size:0.88rem"><b>Role.</b> Lena, 32, Cologne, is a salaried employee on a middling income with no real cushion, who shops almost entirely on her phone and uses whichever BNPL option appears at checkout.</p>
+        <p style="font-size:0.88rem;margin-top:0.4rem"><b>Goal.</b> She wants the money to leave her account only after she has decided to keep an item (N-01), and to know at a glance what she owes and when.</p>
+        <p style="font-size:0.88rem;margin-top:0.4rem"><b>Friction.</b> Her card balance and her regular pay later orders sit on two different screens, and two reminders for different amounts arrive in the same week (N-07, T-103, T-104), which confirms her fear that a card is “one more thing to check before payday” (N-02).</p>
+        <p style="font-size:0.88rem;margin-top:0.4rem"><b>External tools.</b> Lena already has Klarna and PayPal installed and uses whichever appears at checkout (the brief), and N-02 says she already has two BNPL apps. Her bank card and debit card are her fallback in shops (N-03, N-06).</p>
+      </div>
+      <div class="stack">
+        <div class="card t-violet">
+          <span class="label">The process · composite of different participants</span>
+          <ol class="steps">
+            <li>She checks her BNPL apps before payday to see what is due (N-02).</li>
+            <li>She opens the Riverty card app and finds the card balance and her regular pay later orders on two different screens, and has to work out which total is real (N-07, T-103).</li>
+            <li>She receives two reminders in the same week for different amounts and has to decide which one to act on (T-104).</li>
+            <li>In a shop, she taps her bank card by default, or tries the Riverty card and gets declined with no reason shown (N-03, N-06, T-101).</li>
+            <li>She goes back to her debit card, or pays again with another card when a late notification makes her think the payment failed (N-06, T-108).</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;padding:0.7rem 1.1rem">
+      <span class="label">The evidence</span>
+      <p style="font-size:0.86rem">“The card was declined at a bakery and the app did not say why. I went back to my debit card the same week.” (N-06) · “A third card is one more thing to check before payday.” (N-02)</p>
+    </div>
+    <p class="eyebrow" style="margin:1rem 0 0.5rem">Journey map · key moments</p>
+    <div class="journey">
+      <div class="card stage">
+        <h3>1. Set up</h3>
+        <div class="row"><b>Today</b>143 of 431 activated cards never reached the phone wallet</div>
+        <div class="row"><b>With the feature or later fixes</b>Wallet from the approval screen (B2)</div>
+        <div class="row"><b>Evidence</b>T-102</div>
+        <div class="row"><b>In this experiment?</b>No</div>
+      </div>
+      <div class="card stage">
+        <h3>2. Pay in shop</h3>
+        <div class="row"><b>Today</b>Unexplained decline sends her back to debit</div>
+        <div class="row"><b>With the feature or later fixes</b>Decline reason and retry hint (B1)</div>
+        <div class="row"><b>Evidence</b>N-06, T-101</div>
+        <div class="row"><b>In this experiment?</b>No</div>
+      </div>
+      <div class="card stage miss">
+        <span class="tag flag">Moment of misery</span>
+        <h3>3. Check balance</h3>
+        <div class="row"><b>Today</b>Two screens, two totals, so which one is real?</div>
+        <div class="row"><b>With the feature or later fixes</b>One screen with Card, Pay later orders and one Total owed (B3)</div>
+        <div class="row"><b>Evidence</b>N-07, T-103</div>
+        <div class="row"><b>In this experiment?</b>Yes, the only change tested</div>
+      </div>
+      <div class="card stage">
+        <h3>4. Plan payday</h3>
+        <div class="row"><b>Today</b>Two reminders for different amounts in one week</div>
+        <div class="row"><b>With the feature or later fixes</b>One combined reminder (B8)</div>
+        <div class="row"><b>Evidence</b>T-104</div>
+        <div class="row"><b>In this experiment?</b>No</div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:0.6rem;font-size:0.86rem">Most painful moment: moment 3 is the core of the problem and the one B3 fixes.</p>
+  </div>
+</section>
+
+<!-- 4. Blueprint -->
+<section id="blueprint" aria-labelledby="t-blueprint">
+  <div class="wrap">
+    <p class="eyebrow">Slide 7 · Blueprint</p>
+    <h2 class="slide-title" id="t-blueprint">Blueprint</h2>
+    <p class="sub">Prioritization / roadmap · PRD highlights · Prototype</p>
+    <div class="grid g3">
+      <div class="card lane now">
+        <h3><span class="tag">Now</span> This sprint</h3>
+        <div class="feat"><b><i>B1</i>Decline reason and retry hint shown in the app</b><p>Cheap, covers online declines too, and one unexplained decline sent a participant back to debit.</p></div>
+        <div class="feat"><b><i>B3</i>One balance view for card and regular pay later orders</b><p>Directly removes the two-screen misery for the heavy users with the most to track.</p></div>
+        <div class="feat"><b><i>B8</i>One combined reminder showing both amounts and both dates (scoped-down B8)</b><p>May fix T-104 without changing due dates, if engineering confirms no terms change.</p></div>
+      </div>
+      <div class="card lane next">
+        <h3><span class="tag">Next</span> The following sprints</h3>
+        <div class="feat"><b><i>B4</i>Choose pay now or pay later per purchase after paying</b><p>The likeliest differentiator, but a proposition change that needs its own bet and metric.</p></div>
+      </div>
+      <div class="card lane later">
+        <h3><span class="tag">Later</span> Backlog</h3>
+        <div class="feat"><b><i>B2</i>Add to phone wallet straight from the approval screen</b><p>Fixes the 143 stuck cards, but online use doesn’t need the wallet.</p></div>
+      </div>
+    </div>
+    <div class="grid cutrow" style="margin-top:12px">
+      <div class="feat"><span class="label" style="color:var(--pink)">Cut</span><b><i>B5</i>Offers from partner merchants inside the card app</b><p>Revisit after merchant discovery, since merchants gave only conditional interest.</p></div>
+      <div class="feat"><span class="label" style="color:var(--pink)">Cut</span><b><i>B6</i>Cashback on every purchase</b><p>Prompts a trial, not retention (N-12), and spends margin.</p></div>
+      <div class="feat"><span class="label" style="color:var(--pink)">Cut</span><b><i>B7</i>Physical card</b><p>No evidence anyone asked for it.</p></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1.6fr 1fr;margin-top:14px">
+      <div class="card hero">
+        <span class="label" style="color:var(--orange)">PRD highlights · the “Now” feature I’m scoping</span>
+        <p style="font-size:0.9rem"><b>B3, one balance view for card and regular pay later orders.</b></p>
+        <ul class="must" style="margin-top:0.35rem">
+          <li>One screen showing the card balance and the open pay later orders, labelled “Card” and “Pay later orders”.</li>
+          <li>One headline total across both.</li>
+          <li>No partial totals. If either part fails to load, show which one failed and no total.</li>
+          <li>One entry point from the app home.</li>
+        </ul>
+        <p style="font-size:0.84rem;margin-top:0.45rem" class="muted">What the PRD makes explicit: the total disappears if either part fails to load.</p>
+      </div>
+      <div class="card t-cyan">
+        <span class="label">Prototype</span>
+        <span class="proto"><span class="tag">Prototype</span>04-roadmap/prototype.html</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Validation -->
+<section id="validation" aria-labelledby="t-validation">
+  <div class="wrap">
+    <p class="eyebrow">Slide 8 · Validation</p>
+    <h2 class="slide-title" id="t-validation">Validation</h2>
+    <p class="sub">The experiment plan</p>
+    <div class="card hero callout">
+      <span class="label" style="color:var(--orange)">Hypothesis</span>
+      <p style="font-size:0.92rem">I believe that putting a “What you owe” view, one total across the card balance and pay later orders, on the home screen for newly activated card holders like Lena, a heavy BNPL user, will result in more of them still making a purchase two months after activation, as measured by an 8 percentage point (about 15% relative) rise in month-2 activity, from about 54% to 62%, within about 6 to 7 months. That is about 4 months of enrolment to reach 597 cards per arm, plus 2 to 3 months of follow-up. We will protect partner merchant share of card volume (63.1% in Month 4, floor 58.8%) throughout the test.</p>
+    </div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card t-cyan">
+        <span class="label">Control (A)</span>
+        <p style="font-size:0.86rem">Today’s experience, with the card balance and pay later orders on two separate screens and no combined total. No other change ships to either arm during the test.</p>
+      </div>
+      <div class="card" style="border-color:rgba(251,146,60,0.55)">
+        <span class="label" style="color:var(--orange)">Variant (B) · the single change</span>
+        <p style="font-size:0.86rem">A “What you owe” section on the app home screen, visible without scrolling: a “Total owed” figure, a row “Card” and a row “Pay later orders”. The total exists on the page only when both parts have loaded. A failed part shows “Couldn’t load”, and the other part still shows its amount.</p>
+      </div>
+    </div>
+    <div class="grid g6" style="margin-top:12px">
+      <div class="stat"><span class="label" style="margin:0">Primary metric</span><b style="font-size:0.86rem;font-family:var(--sans)">Month-2 activity of newly activated cards</b></div>
+      <div class="stat"><span class="label" style="margin:0">Baseline</span><b>About 54%</b></div>
+      <div class="stat"><span class="label" style="margin:0">MDE</span><b>+8 points</b><span>from 54% to 62%</span></div>
+      <div class="stat"><span class="label" style="margin:0">Sample per arm</span><b>About 597</b><span>1,194 in total</span></div>
+      <div class="stat"><span class="label" style="margin:0">Guardrail</span><b>≥ 58.8%</b><span>partner merchant share of card volume (63.1% in Month 4)</span></div>
+      <div class="stat"><span class="label" style="margin:0">Significance</span><b>p &lt; 0.05</b><span>two-sided · 50/50 split</span></div>
+    </div>
+    <div class="grid g3 rules" style="margin-top:12px">
+      <div class="card ship"><b>SHIP</b><p>if month-2 activity improves by at least 8 percentage points (about 54% to 62% or more) at p &lt; 0.05, two-sided, and partner merchant share of card volume does not reach its boundary after about 6 to 7 months. The boundary is below 58.8% in any calendar month, or more than 3 points below control in the same month.</p></div>
+      <div class="card iter"><b>ITERATE</b><p>if the direction is positive but the lift is below 8 points, meaning between +2 and +8 points. That means a new test with a new read date, not shipping.</p></div>
+      <div class="card kill"><b>KILL</b><p>if the primary metric shows no improvement or moves negatively, meaning a lift below +2 points.</p></div>
+    </div>
+    <p class="muted" style="margin-top:0.6rem;font-size:0.84rem">Read date: fixed at the end of the test duration, which is the month-2 follow-up of the 1,194th enrolled card.</p>
+  </div>
+</section>
+
+<!-- 6. Launch -->
+<section id="launch" aria-labelledby="t-launch">
+  <div class="wrap">
+    <p class="eyebrow">Slide 9 · Launch</p>
+    <h2 class="slide-title" id="t-launch">Launch</h2>
+    <p class="sub">GTM strategy · Success-metrics dashboard</p>
+    <div class="grid" style="grid-template-columns:0.9fr 1.3fr;align-items:start">
+      <div class="stack">
+        <div class="card hero">
+          <span class="label" style="color:var(--orange)">GTM strategy</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:0.7rem">
+            <span class="pill"><b>Goal</b> Engagement</span>
+            <span class="pill"><b>Tier</b> S, Minimal</span>
+          </div>
+          <p style="font-size:0.84rem"><b>Goal.</b> Engagement, the card’s problem is use after activation, not awareness or conversion.</p>
+          <p style="font-size:0.84rem;margin-top:0.4rem"><b>Audience.</b> Lena, 32, Cologne, a salaried heavy BNPL user who holds the card.</p>
+          <p style="font-size:0.84rem;margin-top:0.4rem"><b>Reach.</b> The card is not publicly launched, and the pilot had 431 activated cards.</p>
+        </div>
+        <div class="card t-cyan">
+          <span class="label">Channels · all owned</span>
+          <div class="stack" style="gap:8px">
+            <span class="pill"><b>Owned</b> In-app: the section itself plus a one-time “New” notice</span>
+            <span class="pill"><b>Owned</b> Push notification, one message</span>
+            <span class="pill"><b>Owned</b> Short email to card holders</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="grid g3" style="gap:10px">
+          <div class="stat" style="border-color:rgba(251,146,60,0.55)"><span class="label" style="margin:0;color:var(--orange)">Primary</span><b>54% → 62%</b><span>Month-2 activity of newly activated cards, read about 3 months after launch under the experiment’s rule</span></div>
+          <div class="stat"><span class="label" style="margin:0;color:var(--cyan)">Early read</span><b>66.3%</b><span>Month-1 activity baseline, card-weighted across three cohorts. Directional only at about 150 cards a month</span></div>
+          <div class="stat"><span class="label" style="margin:0;color:var(--teal)">Guardrail</span><b>≥ 58.8%</b><span>Partner merchant share, and no more than 3 points below control</span></div>
+        </div>
+        <div class="grid g3" style="gap:10px">
+          <div class="stat"><span class="label" style="margin:0;color:var(--teal)">Health check</span><span style="margin-top:0">“Couldn’t load” on at most 2% of renders</span></div>
+          <div class="stat"><span class="label" style="margin:0;color:var(--teal)">Health check</span><span style="margin-top:0">Zero confirmed wrong totals</span></div>
+          <div class="stat"><span class="label" style="margin:0;color:var(--teal)">Health check</span><span style="margin-top:0">Balance-related tickets per 1,000 active cards at most 1.5 times control</span></div>
+        </div>
+        <div class="card bad">
+          <span class="label" style="color:var(--pink)">Bad signals and actions</span>
+          <table>
+            <thead><tr><th>Signal</th><th>Threshold</th><th>Action</th><th>Owner</th></tr></thead>
+            <tbody>
+              <tr><td>Wrong total</td><td>Any confirmed case</td><td>Pause the rollout the same day</td><td>Engineering lead <span class="tbc">(name TBC)</span></td></tr>
+              <tr><td>“Couldn’t load” rate</td><td>Above 2% for two days</td><td>Hold the current rollout stage</td><td>Engineering lead <span class="tbc">(name TBC)</span></td></tr>
+              <tr><td>Balance tickets</td><td>Above 1.5 times control in week 1</td><td>Escalate to the PM</td><td>CS lead <span class="tbc">(name TBC)</span></td></tr>
+              <tr><td>Month-1 activity</td><td>Below 62% for post-launch cohorts</td><td>Review at day 60</td><td>PM (Minu George)</td></tr>
+              <tr><td>Partner merchant share</td><td>Below 58.8%, or more than 3 points below control</td><td>Investigate. Stop if more than 5 points below control for two consecutive months</td><td>PM (Minu George)</td></tr>
+              <tr><td>Views high, month-2 flat</td><td>At the read date</td><td>Iterate, don’t scale. Looking isn’t the lever</td><td>PM (Minu George)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Story -->
+<section id="story" aria-labelledby="t-story">
+  <div class="wrap">
+    <p class="eyebrow">Slide 10 · Story</p>
+    <h2 class="slide-title" id="t-story">Story</h2>
+    <p class="sub">Friction points · Aha moment · Key takeaways and what I would do next</p>
+    <div class="grid g3 story" style="align-items:start">
+      <div class="card shadow t-violet">
+        <span class="label">Friction points</span>
+        <p>The hardest challenge was connecting the pain I had found to a number that could prove it. The interviews and tickets gave me a clear moment of misery for Lena: the card balance and her pay later orders on two screens, and two reminders for different amounts in the same week (N-07, T-103, T-104). The data pack measured usage, not pain. Month-2 activity falls from 77.6% to 51.0% for the Month 1 cohort, but that could be novelty fading (N-12) as easily as tracking friction. The test group was also mostly employees (253 of 431 activated cards), and my persona was a composite of different participants. So I could name the problem but not prove its size.</p>
+        <p>The second challenge was scope. My M3 hypothesis bundled three fixes: one balance, one due date and a failure reason. The feature I scoped, B3, delivers only the first, so the test I could actually run was narrower than the idea I believed in.</p>
+      </div>
+      <div class="card hero">
+        <span class="label" style="color:var(--orange)">Aha moment</span>
+        <p>My aha came when I pressure-tested my own experiment brief. I had written an 8-point goal and a clean decision rule, then checked whether the data could ever deliver it. It could not. At the pilot’s pace of about 108 activations a month, reaching 597 cards per arm would take about 11 months of enrolment. My kill rule, a lift under +2 points, would also have rejected a real +4 point win about a quarter of the time.</p>
+        <p>A decision rule has to survive its own sample size. I rewrote it with a void check, an explicit inconclusive outcome, a kill line based on the confidence interval and a named owner, all committed before any data arrives.</p>
+      </div>
+      <div class="stack">
+        <div class="card shadow t-teal">
+          <span class="label">Key takeaways</span>
+          <ul>
+            <li>Plausible is not evidence. “Cash-flow control” and “Merchant offers” sounded like sensible features, and an AI-written persona arrived with traits like “terminal panic” that no participant said. Each one fell apart when I asked which quote or number supported it.</li>
+            <li>AI drafts fast and sounds equally confident about guesses. It was most useful when I gave it a structure and pushed back, and least reliable when it filled in numbers on its own.</li>
+            <li>Prioritisation depends on the metric you choose. I lowered B4’s value once I saw that nothing linked it to month-2 activity. The decline fix (B1) moved up when the data showed about half of declines were online, not in store.</li>
+            <li>Building exposes the logic of a plan. The prototype showed that my PRD’s “one tap to open” rule contradicted Lena’s complaint about having one more thing to check, so I moved the view onto the home page.</li>
+            <li>Most of my numbers were assumptions. The 62% target, the 58.8% guardrail floor, the 150-card cohort minimum and every effort score were mine, not the data pack’s. Labelling them kept the plan honest.</li>
+          </ul>
+        </div>
+        <div class="card t-cyan">
+          <span class="label">What I would do next</span>
+          <p>Likely post-launch decision: iterate. At plausible true lifts of 4 to 5 points, the test has only 29% to 42% power, so an inconclusive read is more likely than a clear ship or kill. Keep the section live, since it is cheap and low risk, and judge the next step (B8) on 90-day cohorts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Thank you / Submit -->
+<section class="thanks" id="submit" aria-labelledby="t-thanks">
+  <div class="wrap" style="display:flex;flex-direction:column;align-items:center">
+    <p class="eyebrow">Thank you</p>
+    <h2 id="t-thanks">Thank you</h2>
+    <div class="card hero" style="max-width:640px;width:100%">
+      <span class="label">Repo link</span>
+      <p><a href="https://github.com/MinuGeorge25/pm-final-project" target="_blank" rel="noopener noreferrer">https://github.com/MinuGeorge25/pm-final-project</a></p>
+    </div>
+    <div class="row">
+      <span class="pill"><b>Cohort</b> Riverty cohort 2 · Product School Product Management</span>
+      <span class="pill"><b>Author</b> Minu George</span>
+    </div>
+    <div class="row">
+      <span class="pill submit">Submit to the learning platform: repo link + deck file</span>
+    </div>
+    <p class="muted mono" style="margin-top:1.2rem;font-size:0.78rem">Prototype · 04-roadmap/prototype.html</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  var secs = [].slice.call(document.querySelectorAll('main > section'));
+  var dots = [].slice.call(document.querySelectorAll('.dots button'));
+  var bar = document.getElementById('bar');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function current() {
+    var mid = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < secs.length; i++) {
+      var top = secs[i].offsetTop;
+      if (top <= mid && top + secs[i].offsetHeight > mid) return i;
+    }
+    return 0;
+  }
+  function go(i) {
+    i = Math.max(0, Math.min(secs.length - 1, i));
+    secs[i].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+  function update() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+    var c = current();
+    dots.forEach(function (d, i) { d.setAttribute('aria-current', String(i === c)); });
+  }
+  dots.forEach(function (d, i) { d.addEventListener('click', function () { go(i); }); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    var onButton = tag === 'button';
+    var c = current();
+    switch (e.key) {
+      case 'ArrowDown': case 'PageDown': e.preventDefault(); go(c + 1); break;
+      case 'ArrowUp': case 'PageUp': e.preventDefault(); go(c - 1); break;
+      case ' ': case 'Spacebar':
+        if (onButton) return;
+        e.preventDefault(); go(e.shiftKey ? c - 1 : c + 1); break;
+      case 'Home': e.preventDefault(); go(0); break;
+      case 'End': e.preventDefault(); go(secs.length - 1); break;
+      case 'Escape': e.preventDefault(); go(0); break;
+    }
+  });
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+</body>
+</html>
